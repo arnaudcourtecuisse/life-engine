@@ -9,7 +9,7 @@
 	</head>
 	<body>
 		<script src="./js/bundle.js"></script>
-		
+
 		<div id='env'>
 			<canvas id='env-canvas'></canvas>
 		</div>
@@ -45,29 +45,24 @@
 				</div>
 
 				<div id='about' class='tab'>
-					<div class='left-half'>
-						<h3>The Life Engine</h3>
-						<p>The Life Engine is a virtual ecosystem that allows organisms to reproduce, compete, and evolve.</p>
-						<p>Each organism is made up of different colored cells. Hover over each color to learn what it does.</p>
-						<div id='cell-legend'>
-							<div class='cell-legend-type' id='mouth' title="Mouth: Eats adjacent food."></div>
-							<div class='cell-legend-type' id='producer' title="Producer: Produces adjacent food."></div>
-							<div class='cell-legend-type' id='mover' title="Mover: Allows for movement and rotation."></div>
-							<div class='cell-legend-type' id='killer' title="Killer: Harms organisms in adjacent cells."></div>
-							<div class='cell-legend-type' id='armor' title="Armor: Negates affects of killer cell."></div>
-							<div class='cell-legend-type' id='eye' title="Eye: Observes cells and decides movement."></div>
-							<div class='cell-legend-type' id='food' title="Food: Not part of an organism. Once an organism has eaten enough food, it will reproduce."></div>
-							<div class='cell-legend-type' id='wall' title="Wall: Not part of an organism. Blocks movement and reproduction."></div>
-						</div><br>
-					</div>
-					<div class='right-half'>
-						<iframe id="video" src="https://www.youtube.com/embed/iSAKEnRfles"></iframe>
-					</div>
+					<h3>The Life Engine</h3>
+					<p>The Life Engine is a virtual ecosystem that allows organisms to reproduce, compete, and evolve.</p>
+					<p>Each organism is made up of different colored cells. Hover over each color to learn what it does.</p>
+					<div id='cell-legend'>
+						<div class='cell-legend-type' id='mouth' title="Mouth: Eats adjacent food."></div>
+						<div class='cell-legend-type' id='producer' title="Producer: Produces adjacent food."></div>
+						<div class='cell-legend-type' id='mover' title="Mover: Allows for movement and rotation."></div>
+						<div class='cell-legend-type' id='killer' title="Killer: Harms organisms in adjacent cells."></div>
+						<div class='cell-legend-type' id='armor' title="Armor: Negates affects of killer cell."></div>
+						<div class='cell-legend-type' id='eye' title="Eye: Observes cells and decides movement."></div>
+						<div class='cell-legend-type' id='food' title="Food: Not part of an organism. Once an organism has eaten enough food, it will reproduce."></div>
+						<div class='cell-legend-type' id='wall' title="Wall: Not part of an organism. Blocks movement and reproduction."></div>
+					</div><br>
 					<div class='icon-links'>
-						<a href=https://github.com/MaxRobinsonTheGreat/EvolutionSimulatorV2 title='View the code'><i class="fa-brands fa-github"></i></a>
-						<a href="https://discord.gg/ZsrAAByEnr" title='Join the community'><i class="fa-brands fa-discord"></i></a>
-						<a href=" https://www.patreon.com/emergentgarden" title='Support the project'><i class="fa-brands fa-patreon"></i></a>
-
+						<a href=https://www.youtube.com/watch?v=iSAKEnRfles title='See on YouTube' target="_blank"><i class="fa-brands fa-youtube"></i></a>
+						<a href=https://github.com/MaxRobinsonTheGreat/EvolutionSimulatorV2 title='View the code' target="_blank"><i class="fa-brands fa-github"></i></a>
+						<a href="https://discord.gg/ZsrAAByEnr" title='Join the community' target="_blank"><i class="fa-brands fa-discord"></i></a>
+						<a href=" https://www.patreon.com/emergentgarden" title='Support the project' target="_blank"><i class="fa-brands fa-patreon"></i></a>
 					</div>
 				</div>
 
@@ -99,7 +94,7 @@
 							<button class='randomize-button' id='generate-random' title="Randomizes organism"><i class="fa fa-random"></i></button>
 							<br>
 						</div>
-						
+
 					</div>
 					<div class='right-half'>
 						<div id='organism-details' style="display:none;">
@@ -108,7 +103,7 @@
 							<p id='move-range'>Move Range: </p>
 							<p id='mutation-rate'>Mutation Rate: </p>
 							<br>
-						
+
 							<div class='brain-details'>
 								<h4>Brain</h4>
 								<p class='chase-types'>Move Towards: food</p>
@@ -152,7 +147,7 @@
 								<p class='retreat-types'>Move Away From: killer</p>
 							</div>
 						</div>
-						
+
 						<button id='reset-with-editor-org' title='Reset the environment with the organism in the editor'>Reset with Editor Organism</button>
 					</div>
 				</div>
@@ -225,7 +220,7 @@
 						<label for="extra-mover-cost" title='Additional food cost for movers to reproduce'>Extra mover reproduction cost:</label>
 						<input type="number" id="extra-mover-cost" value=0 max="1000" step="1">
 
-						
+
 					</div>
 					<div class='right-half'>
 						<button id='reset-rules'>Reset all controls</button>
@@ -307,6 +302,6 @@
 		<div id='maximize-hot-control' class='hot-controls'>
 			<button id="maximize" title="Show Control Panel."><i class="fa fa-plus-square"></i></button>
 		</div>
-		
+
 	</body>
 </html>

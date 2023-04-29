@@ -176,16 +176,9 @@ input:hover,input:active {
 }
 
 .tab#about {
-    display: grid;
+    display: block;
 }
 
-.left-half {
-    grid-column: 1;
-}
-
-.right-half {
-    grid-column: 2;
-}
 
 .global-mutation-in {
     display: none;
