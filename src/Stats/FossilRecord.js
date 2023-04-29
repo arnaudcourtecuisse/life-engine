@@ -19,7 +19,7 @@ const FossilRecord = {
     },
 
     addSpecies: function (org, ancestor) {
-        var new_species = new Species(
+        const new_species = new Species(
             org.anatomy,
             ancestor,
             this.env.total_ticks
@@ -83,7 +83,7 @@ const FossilRecord = {
     },
 
     updateData() {
-        var tick = this.env.total_ticks;
+        const tick = this.env.total_ticks;
         this.tick_record.push(tick);
         this.pop_counts.push(this.env.organisms.length);
         this.species_counts.push(this.numExtantSpecies());
@@ -100,13 +100,13 @@ const FossilRecord = {
     },
 
     calcCellCountAverages() {
-        var total_org = 0;
-        var cell_counts = {};
-        for (let c of CellStates.living) {
+        let total_org = 0;
+        const cell_counts = {};
+        for (const c of CellStates.living) {
             cell_counts[c.name] = 0;
         }
-        var first = true;
-        for (let s of Object.values(this.extant_species)) {
+        let first = true;
+        for (const s of Object.values(this.extant_species)) {
             if (
                 !first &&
                 this.numExtantSpecies() > 10 &&
@@ -114,7 +114,7 @@ const FossilRecord = {
             ) {
                 continue;
             }
-            for (let name in s.cell_counts) {
+            for (const name in s.cell_counts) {
                 cell_counts[name] += s.cell_counts[name] * s.population;
             }
             total_org += s.population;
@@ -126,8 +126,8 @@ const FossilRecord = {
             return;
         }
 
-        var total_cells = 0;
-        for (let c in cell_counts) {
+        let total_cells = 0;
+        for (const c in cell_counts) {
             total_cells += cell_counts[c];
             cell_counts[c] /= total_org;
         }
@@ -143,7 +143,7 @@ const FossilRecord = {
 
     serialize() {
         this.updateData();
-        let record = SerializeHelper.copyNonObjects(this);
+        const record = SerializeHelper.copyNonObjects(this);
         record.records = {
             tick_record: this.tick_record,
             pop_counts: this.pop_counts,
@@ -152,8 +152,8 @@ const FossilRecord = {
             av_cells: this.av_cells,
             av_cell_counts: this.av_cell_counts,
         };
-        let species = {};
-        for (let s of Object.values(this.extant_species)) {
+        const species = {};
+        for (const s of Object.values(this.extant_species)) {
             species[s.name] = SerializeHelper.copyNonObjects(s);
             delete species[s.name].name; // the name will be used as the key, so remove it from the value
         }
@@ -163,7 +163,7 @@ const FossilRecord = {
 
     loadRaw(record) {
         SerializeHelper.overwriteNonObjects(record, this);
-        for (let key in record.records) {
+        for (const key in record.records) {
             this[key] = record.records[key];
         }
     },

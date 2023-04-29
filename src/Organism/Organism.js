@@ -34,7 +34,7 @@ class Organism {
         this.move_range = parent.move_range;
         this.mutability = parent.mutability;
         this.species = parent.species;
-        for (var c of parent.anatomy.cells) {
+        for (const c of parent.anatomy.cells) {
             //deep copy parent cells
             this.anatomy.addInheritCell(c);
         }
@@ -61,11 +61,11 @@ class Organism {
     reproduce() {
         //produce mutated child
         //check nearby locations (is there room and a direct path)
-        var org = new Organism(0, 0, this.env, this);
+        const org = new Organism(0, 0, this.env, this);
         if (Hyperparams.rotationEnabled) {
             org.rotation = Directions.getRandomDirection();
         }
-        var prob = this.mutability;
+        let prob = this.mutability;
         if (Hyperparams.useGlobalMutability) {
             prob = Hyperparams.globalMutability;
         } else {
@@ -76,7 +76,7 @@ class Organism {
                 if (org.mutability < 1) org.mutability = 1;
             }
         }
-        var mutated = false;
+        let mutated = false;
         if (Math.random() * 100 <= prob) {
             if (org.anatomy.is_mover && Math.random() * 100 <= 10) {
                 if (org.anatomy.has_eyes) {
@@ -91,13 +91,13 @@ class Organism {
             }
         }
 
-        var direction = Directions.getRandomScalar();
-        var direction_c = direction[0];
-        var direction_r = direction[1];
-        var offset = Math.floor(Math.random() * 3);
-        var basemovement = this.anatomy.birth_distance;
-        var new_c = this.c + direction_c * basemovement + direction_c * offset;
-        var new_r = this.r + direction_r * basemovement + direction_r * offset;
+        const direction = Directions.getRandomScalar();
+        const direction_c = direction[0];
+        const direction_r = direction[1];
+        const offset = Math.floor(Math.random() * 3);
+        const basemovement = this.anatomy.birth_distance;
+        const new_c = this.c + direction_c * basemovement + direction_c * offset;
+        const new_r = this.r + direction_r * basemovement + direction_r * offset;
 
         if (
             org.isClear(new_c, new_r, org.rotation, true) &&
@@ -121,26 +121,26 @@ class Organism {
         let changed = false;
         let removed = false;
         if (this.calcRandomChance(Hyperparams.addProb)) {
-            let branch = this.anatomy.getRandomCell();
-            let state = CellStates.getRandomLivingType(); //branch.state;
-            let growth_direction =
+            const branch = this.anatomy.getRandomCell();
+            const state = CellStates.getRandomLivingType(); //branch.state;
+            const growth_direction =
                 Neighbors.all[Math.floor(Math.random() * Neighbors.all.length)];
-            let c = branch.loc_col + growth_direction[0];
-            let r = branch.loc_row + growth_direction[1];
+            const c = branch.loc_col + growth_direction[0];
+            const r = branch.loc_row + growth_direction[1];
             if (this.anatomy.canAddCellAt(c, r)) {
                 added = true;
                 this.anatomy.addRandomizedCell(state, c, r);
             }
         }
         if (this.calcRandomChance(Hyperparams.changeProb)) {
-            let cell = this.anatomy.getRandomCell();
-            let state = CellStates.getRandomLivingType();
+            const cell = this.anatomy.getRandomCell();
+            const state = CellStates.getRandomLivingType();
             this.anatomy.replaceCell(state, cell.loc_col, cell.loc_row);
             changed = true;
         }
         if (this.calcRandomChance(Hyperparams.removeProb)) {
             if (this.anatomy.cells.length > 1) {
-                let cell = this.anatomy.getRandomCell();
+                const cell = this.anatomy.getRandomCell();
                 removed = this.anatomy.removeCell(cell.loc_col, cell.loc_row);
             }
         }
@@ -152,15 +152,15 @@ class Organism {
     }
 
     attemptMove() {
-        var direction = Directions.scalars[this.direction];
-        var direction_c = direction[0];
-        var direction_r = direction[1];
-        var new_c = this.c + direction_c;
-        var new_r = this.r + direction_r;
+        const direction = Directions.scalars[this.direction];
+        const direction_c = direction[0];
+        const direction_r = direction[1];
+        const new_c = this.c + direction_c;
+        const new_r = this.r + direction_r;
         if (this.isClear(new_c, new_r)) {
-            for (var cell of this.anatomy.cells) {
-                var real_c = this.c + cell.rotatedCol(this.rotation);
-                var real_r = this.r + cell.rotatedRow(this.rotation);
+            for (const cell of this.anatomy.cells) {
+                const real_c = this.c + cell.rotatedCol(this.rotation);
+                const real_r = this.r + cell.rotatedRow(this.rotation);
                 this.env.changeCell(real_c, real_r, CellStates.empty, null);
             }
             this.c = new_c;
@@ -177,11 +177,11 @@ class Organism {
             this.move_count = 0;
             return true;
         }
-        var new_rotation = Directions.getRandomDirection();
+        const new_rotation = Directions.getRandomDirection();
         if (this.isClear(this.c, this.r, new_rotation)) {
-            for (var cell of this.anatomy.cells) {
-                var real_c = this.c + cell.rotatedCol(this.rotation);
-                var real_r = this.r + cell.rotatedRow(this.rotation);
+            for (const cell of this.anatomy.cells) {
+                const real_c = this.c + cell.rotatedCol(this.rotation);
+                const real_r = this.r + cell.rotatedRow(this.rotation);
                 this.env.changeCell(real_c, real_r, CellStates.empty, null);
             }
             this.rotation = new_rotation;
@@ -202,12 +202,12 @@ class Organism {
     isStraightPath(c1, r1, c2, r2, parent) {
         if (c1 == c2) {
             if (r1 > r2) {
-                var temp = r2;
+                const temp = r2;
                 r2 = r1;
                 r1 = temp;
             }
-            for (var i = r1; i != r2; i++) {
-                var cell = this.env.grid_map.cellAt(c1, i);
+            for (let i = r1; i != r2; i++) {
+                const cell = this.env.grid_map.cellAt(c1, i);
                 if (!this.isPassableCell(cell, parent)) {
                     return false;
                 }
@@ -215,12 +215,12 @@ class Organism {
             return true;
         } else {
             if (c1 > c2) {
-                var temp = c2;
+                const temp = c2;
                 c2 = c1;
                 c1 = temp;
             }
-            for (var i = c1; i != c2; i++) {
-                var cell = this.env.grid_map.cellAt(i, r1);
+            for (let i = c1; i != c2; i++) {
+                const cell = this.env.grid_map.cellAt(i, r1);
                 if (!this.isPassableCell(cell, parent)) {
                     return false;
                 }
@@ -240,8 +240,8 @@ class Organism {
     }
 
     isClear(col, row, rotation = this.rotation) {
-        for (var loccell of this.anatomy.cells) {
-            var cell = this.getRealCell(loccell, col, row, rotation);
+        for (const loccell of this.anatomy.cells) {
+            const cell = this.getRealCell(loccell, col, row, rotation);
             if (cell == null) {
                 return false;
             }
@@ -266,9 +266,9 @@ class Organism {
     }
 
     die() {
-        for (var cell of this.anatomy.cells) {
-            var real_c = this.c + cell.rotatedCol(this.rotation);
-            var real_r = this.r + cell.rotatedRow(this.rotation);
+        for (const cell of this.anatomy.cells) {
+            const real_c = this.c + cell.rotatedCol(this.rotation);
+            const real_r = this.r + cell.rotatedRow(this.rotation);
             this.env.changeCell(real_c, real_r, CellStates.food, null);
         }
         this.species.decreasePop();
@@ -276,9 +276,9 @@ class Organism {
     }
 
     updateGrid() {
-        for (var cell of this.anatomy.cells) {
-            var real_c = this.c + cell.rotatedCol(this.rotation);
-            var real_r = this.r + cell.rotatedRow(this.rotation);
+        for (const cell of this.anatomy.cells) {
+            const real_c = this.c + cell.rotatedCol(this.rotation);
+            const real_r = this.r + cell.rotatedRow(this.rotation);
             this.env.changeCell(real_c, real_r, cell.state, cell);
         }
     }
@@ -292,22 +292,22 @@ class Organism {
         if (this.food_collected >= this.foodNeeded()) {
             this.reproduce();
         }
-        for (var cell of this.anatomy.cells) {
+        for (const cell of this.anatomy.cells) {
             cell.performFunction();
             if (!this.living) return this.living;
         }
 
         if (this.anatomy.is_mover) {
             this.move_count++;
-            var changed_dir = false;
+            let changed_dir = false;
             if (this.ignore_brain_for == 0) {
                 changed_dir = this.brain.decide();
             } else {
                 this.ignore_brain_for--;
             }
-            var moved = this.attemptMove();
+            const moved = this.attemptMove();
             if ((this.move_count > this.move_range && !changed_dir) || !moved) {
-                var rotated = this.attemptRotate();
+                const rotated = this.attemptRotate();
                 if (!rotated) {
                     this.changeDirection(Directions.getRandomDirection());
                     if (changed_dir)
@@ -320,13 +320,13 @@ class Organism {
     }
 
     getRealCell(local_cell, c = this.c, r = this.r, rotation = this.rotation) {
-        var real_c = c + local_cell.rotatedCol(rotation);
-        var real_r = r + local_cell.rotatedRow(rotation);
+        const real_c = c + local_cell.rotatedCol(rotation);
+        const real_r = r + local_cell.rotatedRow(rotation);
         return this.env.grid_map.cellAt(real_c, real_r);
     }
 
     serialize() {
-        let org = SerializeHelper.copyNonObjects(this);
+        const org = SerializeHelper.copyNonObjects(this);
         org.anatomy = this.anatomy.serialize();
         if (this.anatomy.is_mover && this.anatomy.has_eyes)
             org.brain = this.brain.serialize();

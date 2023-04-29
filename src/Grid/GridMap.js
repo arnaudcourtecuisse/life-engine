@@ -11,10 +11,10 @@ class GridMap {
         this.cols = cols;
         this.rows = rows;
         this.cell_size = cell_size;
-        for (var c = 0; c < cols; c++) {
-            var row = [];
-            for (var r = 0; r < rows; r++) {
-                var cell = new Cell(
+        for (let c = 0; c < cols; c++) {
+            const row = [];
+            for (let r = 0; r < rows; r++) {
+                const cell = new Cell(
                     CellStates.empty,
                     c,
                     r,
@@ -28,8 +28,8 @@ class GridMap {
     }
 
     fillGrid(state, ignore_walls = false) {
-        for (var col of this.grid) {
-            for (var cell of col) {
+        for (const col of this.grid) {
+            for (const cell of col) {
                 if (ignore_walls && cell.state === CellStates.wall) continue;
                 cell.setType(state);
                 cell.owner = null;
@@ -70,8 +70,8 @@ class GridMap {
     }
 
     xyToColRow(x, y) {
-        var c = Math.floor(x / this.cell_size);
-        var r = Math.floor(y / this.cell_size);
+        let c = Math.floor(x / this.cell_size);
+        let r = Math.floor(y / this.cell_size);
         if (c >= this.cols) c = this.cols - 1;
         else if (c < 0) c = 0;
         if (r >= this.rows) r = this.rows - 1;
@@ -83,16 +83,16 @@ class GridMap {
         // Rather than store every single cell, we will store non organism cells (food+walls)
         // and assume everything else is empty. Organism cells will be set when the organism
         // list is loaded. This reduces filesize and complexity.
-        let grid = { cols: this.cols, rows: this.rows };
+        const grid = { cols: this.cols, rows: this.rows };
         grid.food = [];
         grid.walls = [];
-        for (let col of this.grid) {
-            for (let cell of col) {
+        for (const col of this.grid) {
+            for (const cell of col) {
                 if (
                     cell.state === CellStates.wall ||
                     cell.state === CellStates.food
                 ) {
-                    let c = { c: cell.col, r: cell.row }; // no need to store state
+                    const c = { c: cell.col, r: cell.row }; // no need to store state
                     if (cell.state === CellStates.food) grid.food.push(c);
                     else grid.walls.push(c);
                 }
@@ -102,8 +102,8 @@ class GridMap {
     }
 
     loadRaw(grid) {
-        for (let f of grid.food) this.setCellType(f.c, f.r, CellStates.food);
-        for (let w of grid.walls) this.setCellType(w.c, w.r, CellStates.wall);
+        for (const f of grid.food) this.setCellType(f.c, f.r, CellStates.food);
+        for (const w of grid.walls) this.setCellType(w.c, w.r, CellStates.wall);
     }
 }
 

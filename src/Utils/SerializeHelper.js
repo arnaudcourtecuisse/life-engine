@@ -1,13 +1,13 @@
 const SerializeHelper = {
     copyNonObjects(obj) {
-        let newobj = {};
-        for (let key in obj) {
+        const newobj = {};
+        for (const key in obj) {
             if (typeof obj[key] !== "object") newobj[key] = obj[key];
         }
         return newobj;
     },
     overwriteNonObjects(copyFrom, copyTo) {
-        for (let key in copyFrom) {
+        for (const key in copyFrom) {
             if (
                 typeof copyFrom[key] !== "object" &&
                 typeof copyTo[key] !== "object"

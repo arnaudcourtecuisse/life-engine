@@ -78,12 +78,12 @@ class CanvasController {
     }
 
     updateMouseLocation(offsetX, offsetY) {
-        var prev_cell = this.cur_cell;
-        var prev_org = this.cur_org;
+        const prev_cell = this.cur_cell;
+        const prev_org = this.cur_org;
 
         this.mouse_x = offsetX;
         this.mouse_y = offsetY;
-        var colRow = this.env.grid_map.xyToColRow(this.mouse_x, this.mouse_y);
+        const colRow = this.env.grid_map.xyToColRow(this.mouse_x, this.mouse_y);
         this.mouse_c = colRow[0];
         this.mouse_r = colRow[1];
         this.cur_cell = this.env.grid_map.cellAt(this.mouse_c, this.mouse_r);

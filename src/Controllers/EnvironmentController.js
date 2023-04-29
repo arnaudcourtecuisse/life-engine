@@ -17,23 +17,23 @@ class EnvironmentController extends CanvasController {
     }
 
     defineZoomControls() {
-        var scale = 1;
-        var zoom_speed = 0.5;
+        let scale = 1;
+        const zoom_speed = 0.5;
         const el = document.querySelector("#env-canvas");
         el.onwheel = function zoom(event) {
             event.preventDefault();
 
-            var sign = -Math.sign(event.deltaY);
+            const sign = -Math.sign(event.deltaY);
 
             // Restrict scale
             scale = Math.max(0.5, this.scale + sign * zoom_speed);
 
-            var cur_top = parseInt($("#env-canvas").css("top"));
-            var cur_left = parseInt($("#env-canvas").css("left"));
+            const cur_top = parseInt($("#env-canvas").css("top"));
+            const cur_left = parseInt($("#env-canvas").css("left"));
 
-            var diff_x =
+            const diff_x =
                 (this.canvas.width / 2 - this.mouse_x) * (scale - this.scale);
-            var diff_y =
+            const diff_y =
                 (this.canvas.height / 2 - this.mouse_y) * (scale - this.scale);
 
             $("#env-canvas").css("top", cur_top + diff_y + "px");
@@ -58,27 +58,25 @@ class EnvironmentController extends CanvasController {
     randomizeWalls(thickness = 1) {
         this.env.clearWalls();
         const noise_threshold = -0.017;
-        let avg_noise = 0;
-        let resolution = 20;
+        const resolution = 20;
         Perlin.seed();
 
         for (let r = 0; r < this.env.num_rows; r++) {
             for (let c = 0; c < this.env.num_cols; c++) {
-                let xval =
+                const xval =
                     (c / this.env.num_cols) *
                     ((resolution / this.env.renderer.cell_size) *
                         (this.env.num_cols / this.env.num_rows));
-                let yval =
+                const yval =
                     (r / this.env.num_rows) *
                     ((resolution / this.env.renderer.cell_size) *
                         (this.env.num_rows / this.env.num_cols));
-                let noise = Perlin.get(xval, yval);
-                avg_noise += noise / (this.env.num_rows * this.env.num_cols);
+                const noise = Perlin.get(xval, yval);
                 if (
                     noise > noise_threshold &&
                     noise < noise_threshold + thickness / resolution
                 ) {
-                    let cell = this.env.grid_map.cellAt(c, r);
+                    const cell = this.env.grid_map.cellAt(c, r);
                     if (cell != null) {
                         if (cell.owner != null) cell.owner.die();
                         this.env.changeCell(c, r, CellStates.wall, null);
@@ -106,11 +104,11 @@ class EnvironmentController extends CanvasController {
 
     performModeAction() {
         if (WorldConfig.headless && this.mode != Modes.Drag) return;
-        var mode = this.mode;
-        var right_click = this.right_click;
-        var left_click = this.left_click;
+        const mode = this.mode;
+        const right_click = this.right_click;
+        const left_click = this.left_click;
         if (mode != Modes.None && (right_click || left_click)) {
-            var cell = this.cur_cell;
+            const cell = this.cur_cell;
             if (cell == null) {
                 return;
             }
@@ -171,23 +169,24 @@ class EnvironmentController extends CanvasController {
                         );
                     }
                     break;
-                case Modes.Drag:
-                    var cur_top = parseInt($("#env-canvas").css("top"), 10);
-                    var cur_left = parseInt($("#env-canvas").css("left"), 10);
-                    var new_top =
+                case Modes.Drag: {
+                    const cur_top = parseInt($("#env-canvas").css("top"), 10);
+                    const cur_left = parseInt($("#env-canvas").css("left"), 10);
+                    const new_top =
                         cur_top + (this.mouse_y - this.start_y) * this.scale;
-                    var new_left =
+                    const new_left =
                         cur_left + (this.mouse_x - this.start_x) * this.scale;
                     $("#env-canvas").css("top", new_top + "px");
                     $("#env-canvas").css("left", new_left + "px");
                     break;
+                }
             }
         } else if (this.middle_click) {
             //drag on middle click
-            var cur_top = parseInt($("#env-canvas").css("top"), 10);
-            var cur_left = parseInt($("#env-canvas").css("left"), 10);
-            var new_top = cur_top + (this.mouse_y - this.start_y) * this.scale;
-            var new_left =
+            const cur_top = parseInt($("#env-canvas").css("top"), 10);
+            const cur_left = parseInt($("#env-canvas").css("left"), 10);
+            const new_top = cur_top + (this.mouse_y - this.start_y) * this.scale;
+            const new_left =
                 cur_left + (this.mouse_x - this.start_x) * this.scale;
             $("#env-canvas").css("top", new_top + "px");
             $("#env-canvas").css("left", new_left + "px");
@@ -196,10 +195,10 @@ class EnvironmentController extends CanvasController {
 
     dropOrganism(organism, col, row) {
         // close the organism and drop it in the world
-        var new_org = new Organism(col, row, this.env, organism);
+        const new_org = new Organism(col, row, this.env, organism);
 
         if (new_org.isClear(col, row)) {
-            let new_species = !FossilRecord.speciesIsExtant(
+            const new_species = !FossilRecord.speciesIsExtant(
                 new_org.species.name
             );
             if (new_org.species.extinct) {
@@ -218,10 +217,10 @@ class EnvironmentController extends CanvasController {
     }
 
     dropCellType(col, row, state, killBlocking = false) {
-        for (var loc of Neighbors.allSelf) {
-            var c = col + loc[0];
-            var r = row + loc[1];
-            var cell = this.env.grid_map.cellAt(c, r);
+        for (const loc of Neighbors.allSelf) {
+            const c = col + loc[0];
+            const r = row + loc[1];
+            const cell = this.env.grid_map.cellAt(c, r);
             if (cell == null) continue;
             if (killBlocking && cell.owner != null) {
                 cell.owner.die();
@@ -233,20 +232,20 @@ class EnvironmentController extends CanvasController {
     }
 
     findNearOrganism() {
-        for (var loc of Neighbors.all) {
-            var c = this.cur_cell.col + loc[0];
-            var r = this.cur_cell.row + loc[1];
-            var cell = this.env.grid_map.cellAt(c, r);
+        for (const loc of Neighbors.all) {
+            const c = this.cur_cell.col + loc[0];
+            const r = this.cur_cell.row + loc[1];
+            const cell = this.env.grid_map.cellAt(c, r);
             if (cell != null && cell.owner != null) return cell.owner;
         }
         return null;
     }
 
     killNearOrganisms() {
-        for (var loc of Neighbors.allSelf) {
-            var c = this.cur_cell.col + loc[0];
-            var r = this.cur_cell.row + loc[1];
-            var cell = this.env.grid_map.cellAt(c, r);
+        for (const loc of Neighbors.allSelf) {
+            const c = this.cur_cell.col + loc[0];
+            const r = this.cur_cell.row + loc[1];
+            const cell = this.env.grid_map.cellAt(c, r);
             if (cell != null && cell.owner != null) cell.owner.die();
         }
     }

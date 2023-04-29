@@ -10,18 +10,18 @@ const LoadController = {
             this.open();
         });
         $("#load-env-btn").click(async () => {
-            let file = $("#worlds-load-dropdown").val();
+            const file = $("#worlds-load-dropdown").val();
             const base = `./assets/worlds/`;
-            let resp = await fetch(base + file + ".json");
-            let json = await resp.json();
+            const resp = await fetch(base + file + ".json");
+            const json = await resp.json();
             this.control_panel.loadEnv(json);
             this.close();
         });
         $("#load-org-btn").click(async () => {
-            let file = $("#organisms-load-dropdown").val();
+            const file = $("#organisms-load-dropdown").val();
             const base = `./assets/organisms/`;
-            let resp = await fetch(base + file + ".json");
-            let json = await resp.json();
+            const resp = await fetch(base + file + ".json");
+            const json = await resp.json();
             this.control_panel.editor_controller.loadOrg(json);
             this.close();
             $("#maximize").click();
@@ -37,15 +37,15 @@ const LoadController = {
 
         let list = [];
         try {
-            let resp = await fetch(base + "_list.json");
+            const resp = await fetch(base + "_list.json");
             list = await resp.json();
         } catch (e) {
             console.error("Failed to load list: ", e);
         }
 
-        let id = `#${name}-load-dropdown`;
+        const id = `#${name}-load-dropdown`;
         $(id).empty();
-        for (let opt of list) {
+        for (const opt of list) {
             $(id).append(
                 `<option value="${opt.file}">
                 ${opt.name}
@@ -60,14 +60,14 @@ const LoadController = {
 
     loadJson(callback) {
         $("#upload-json").change((e) => {
-            let files = e.target.files;
+            const files = e.target.files;
             if (!files.length) {
                 return;
             }
-            let reader = new FileReader();
+            const reader = new FileReader();
             reader.onload = (e) => {
                 try {
-                    let json = JSON.parse(e.target.result);
+                    const json = JSON.parse(e.target.result);
                     callback(json);
                     this.close();
                 } catch (e) {

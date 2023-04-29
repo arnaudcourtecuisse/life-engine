@@ -1,6 +1,6 @@
 const CellStates = require("../Organism/Cell/CellStates");
 
-var color_scheme = {
+const color_scheme = {
     empty: "#0E1318",
     food: "#2F7AB7",
     wall: "gray",
@@ -21,11 +21,11 @@ class ColorScheme {
     }
 
     loadColorScheme() {
-        for (var state of CellStates.all) {
+        for (const state of CellStates.all) {
             state.color = color_scheme[state.name];
         }
         CellStates.eye.slit_color = color_scheme["eye-slit"];
-        for (var cell_type in color_scheme) {
+        for (const cell_type in color_scheme) {
             $("#" + cell_type + ".cell-type ").css(
                 "background-color",
                 color_scheme[cell_type]

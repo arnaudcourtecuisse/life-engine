@@ -30,7 +30,7 @@ const Hyperparams = {
     },
 
     loadJsonObj(obj) {
-        for (let key in obj) {
+        for (const key in obj) {
             this[key] = obj[key];
         }
     },

@@ -1,7 +1,3 @@
-// const CellTypes = require("../Organism/Cell/CellTypes");
-const CellStates = require("../Organism/Cell/CellStates");
-const Directions = require("../Organism/Directions");
-
 // Renderer controls access to a canvas. There is one renderer for each canvas
 class Renderer {
     constructor(canvas_id, container_id, cell_size) {
@@ -36,15 +32,15 @@ class Renderer {
     }
 
     renderFullGrid(grid) {
-        for (var col of grid) {
-            for (var cell of col) {
+        for (const col of grid) {
+            for (const cell of col) {
                 this.renderCell(cell);
             }
         }
     }
 
     renderCells() {
-        for (var cell of this.cells_to_render) {
+        for (const cell of this.cells_to_render) {
             this.renderCell(cell);
         }
         this.cells_to_render.clear();
@@ -55,8 +51,8 @@ class Renderer {
     }
 
     renderOrganism(org) {
-        for (var org_cell of org.anatomy.cells) {
-            var cell = org.getRealCell(org_cell);
+        for (const org_cell of org.anatomy.cells) {
+            const cell = org.getRealCell(org_cell);
             this.renderCell(cell);
         }
     }
@@ -69,7 +65,7 @@ class Renderer {
     }
 
     renderHighlights() {
-        for (var cell of this.cells_to_highlight) {
+        for (const cell of this.cells_to_highlight) {
             this.renderCellHighlight(cell);
             this.highlighted_cells.add(cell);
         }
@@ -77,8 +73,8 @@ class Renderer {
     }
 
     highlightOrganism(org) {
-        for (var org_cell of org.anatomy.cells) {
-            var cell = org.getRealCell(org_cell);
+        for (const org_cell of org.anatomy.cells) {
+            const cell = org.getRealCell(org_cell);
             this.cells_to_highlight.add(cell);
         }
     }
@@ -97,7 +93,7 @@ class Renderer {
     }
 
     clearAllHighlights(clear_to_highlight = false) {
-        for (var cell of this.highlighted_cells) {
+        for (const cell of this.highlighted_cells) {
             this.renderCell(cell);
         }
         this.highlighted_cells.clear();

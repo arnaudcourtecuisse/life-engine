@@ -21,8 +21,8 @@ class SpeciesChart extends ChartController {
     }
 
     addDataPoint(i) {
-        var t = FossilRecord.tick_record[i];
-        var p = FossilRecord.species_counts[i];
+        const t = FossilRecord.tick_record[i];
+        const p = FossilRecord.species_counts[i];
         this.data[0].dataPoints.push({ x: t, y: p });
     }
 }

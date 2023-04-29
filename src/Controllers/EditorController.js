@@ -41,7 +41,7 @@ class EditorController extends CanvasController {
                 this.edit_cell_type == CellStates.eye &&
                 this.cur_cell.state == CellStates.eye
             ) {
-                var loc_cell = this.getCurLocalCell();
+                const loc_cell = this.getCurLocalCell();
                 loc_cell.direction = Directions.rotateRight(loc_cell.direction);
                 this.env.renderFull();
             } else
@@ -65,7 +65,7 @@ class EditorController extends CanvasController {
     }
 
     defineCellTypeSelection() {
-        var self = this;
+        const self = this;
         $(".cell-type").click(function () {
             switch (this.id) {
                 case "mouth":
@@ -88,7 +88,7 @@ class EditorController extends CanvasController {
                     break;
             }
             $(".cell-type").css("border-color", "black");
-            var selected = "#" + this.id + ".cell-type";
+            const selected = "#" + this.id + ".cell-type";
             $(selected).css("border-color", "yellow");
         });
     }
@@ -122,8 +122,8 @@ class EditorController extends CanvasController {
         );
         $("#reaction-edit").change(
             function () {
-                var obs = $("#observation-type-edit").val();
-                var decision = parseInt($("#reaction-edit").val());
+                const obs = $("#observation-type-edit").val();
+                const decision = parseInt($("#reaction-edit").val());
                 this.env.organism.brain.decisions[obs] = decision;
                 this.setBrainDetails();
             }.bind(this)
@@ -132,11 +132,11 @@ class EditorController extends CanvasController {
 
     defineSaveLoad() {
         $("#save-org").click(() => {
-            let org = this.env.organism.serialize();
-            let data =
+            const org = this.env.organism.serialize();
+            const data =
                 "data:text/json;charset=utf-8," +
                 encodeURIComponent(JSON.stringify(org));
-            let downloadEl = document.getElementById("download-el");
+            const downloadEl = document.getElementById("download-el");
             downloadEl.setAttribute("href", data);
             downloadEl.setAttribute("download", "organism.json");
             downloadEl.click();
@@ -176,7 +176,7 @@ class EditorController extends CanvasController {
 
     setDetailsPanel() {
         this.clearDetailsPanel();
-        var org = this.env.organism;
+        const org = this.env.organism;
 
         $(".cell-count").text("Cell count: " + org.anatomy.cells.length);
         $("#move-range").text("Move Range: " + org.move_range);
@@ -198,7 +198,7 @@ class EditorController extends CanvasController {
 
     setEditorPanel() {
         this.clearDetailsPanel();
-        var org = this.env.organism;
+        const org = this.env.organism;
 
         $(".cell-count").text("Cell count: " + org.anatomy.cells.length);
         if (this.setMoveRangeVisibility()) {
@@ -221,7 +221,7 @@ class EditorController extends CanvasController {
     }
 
     setBrainPanelVisibility() {
-        var org = this.env.organism;
+        const org = this.env.organism;
         if (org.anatomy.has_eyes && org.anatomy.is_mover) {
             $(".brain-details").css("display", "block");
             return true;
@@ -231,10 +231,10 @@ class EditorController extends CanvasController {
     }
 
     setBrainDetails() {
-        var chase_types = [];
-        var retreat_types = [];
-        for (var cell_name in this.env.organism.brain.decisions) {
-            var decision = this.env.organism.brain.decisions[cell_name];
+        const chase_types = [];
+        const retreat_types = [];
+        for (const cell_name in this.env.organism.brain.decisions) {
+            const decision = this.env.organism.brain.decisions[cell_name];
             if (decision == 1) {
                 retreat_types.push(cell_name);
             } else if (decision == 2) {
@@ -246,7 +246,7 @@ class EditorController extends CanvasController {
     }
 
     setMoveRangeVisibility() {
-        var org = this.env.organism;
+        const org = this.env.organism;
         if (org.anatomy.is_mover) {
             $("#move-range-cont").css("display", "block");
             $("#move-range").css("display", "block");
@@ -259,7 +259,7 @@ class EditorController extends CanvasController {
 
     setBrainEditorValues(name) {
         $("#observation-type-edit").val(name);
-        var reaction = this.env.organism.brain.decisions[name];
+        const reaction = this.env.organism.brain.decisions[name];
         $("#reaction-edit").val(reaction);
     }
 

@@ -1,21 +1,20 @@
 const CellStates = require("./Cell/CellStates");
 const Organism = require("./Organism");
-const Brain = require("./Perception/Brain");
 
 class RandomOrganismGenerator {
     static generate(env) {
-        var center = env.grid_map.getCenter();
-        var organism = new Organism(center[0], center[1], env, null);
+        const center = env.grid_map.getCenter();
+        const organism = new Organism(center[0], center[1], env, null);
         organism.anatomy.addDefaultCell(CellStates.mouth, 0, 0);
 
-        var outermostLayer = RandomOrganismGenerator.organismLayers;
-        var x, y;
+        const outermostLayer = RandomOrganismGenerator.organismLayers;
+        let x, y;
 
         // iterate from center to edge of organism
         // layer 0 is the central cell of the organism
-        for (var layer = 1; layer <= outermostLayer; layer++) {
-            var someCellSpawned = false;
-            var spawnChance =
+        for (let layer = 1; layer <= outermostLayer; layer++) {
+            let someCellSpawned = false;
+            const spawnChance =
                 RandomOrganismGenerator.cellSpawnChance * 1 -
                 (layer - 1) / outermostLayer;
 
@@ -69,7 +68,7 @@ class RandomOrganismGenerator {
     }
 
     static trySpawnCell(organism, x, y, spawnChance) {
-        var neighbors = organism.anatomy.getNeighborsOfCell(x, y);
+        const neighbors = organism.anatomy.getNeighborsOfCell(x, y);
         if (neighbors.length && Math.random() < spawnChance) {
             organism.anatomy.addRandomizedCell(
                 CellStates.getRandomLivingType(),

@@ -59,7 +59,7 @@ class StatsPanel {
     }
 
     updateDetails() {
-        var org_count = this.env.organisms.length;
+        const org_count = this.env.organisms.length;
         $("#org-count").text("Total Population: " + org_count);
         $("#species-count").text(
             "Number of Species: " + FossilRecord.numExtantSpecies()

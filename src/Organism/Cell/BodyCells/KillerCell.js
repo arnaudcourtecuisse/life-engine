@@ -8,11 +8,11 @@ class KillerCell extends BodyCell {
     }
 
     performFunction() {
-        var env = this.org.env;
-        var c = this.getRealCol();
-        var r = this.getRealRow();
-        for (var loc of Hyperparams.killableNeighbors) {
-            var cell = env.grid_map.cellAt(c + loc[0], r + loc[1]);
+        const env = this.org.env;
+        const c = this.getRealCol();
+        const r = this.getRealRow();
+        for (const loc of Hyperparams.killableNeighbors) {
+            const cell = env.grid_map.cellAt(c + loc[0], r + loc[1]);
             this.killNeighbor(cell);
         }
     }
@@ -26,7 +26,7 @@ class KillerCell extends BodyCell {
             n_cell.state == CellStates.armor
         )
             return;
-        var is_hit = n_cell.state == CellStates.killer; // has to be calculated before death
+        const is_hit = n_cell.state == CellStates.killer; // has to be calculated before death
         n_cell.owner.harm();
         if (Hyperparams.instaKill && is_hit) {
             this.org.harm();

@@ -27,21 +27,21 @@ class EyeCell extends BodyCell {
     }
 
     getAbsoluteDirection() {
-        var dir = this.org.rotation + this.direction;
+        let dir = this.org.rotation + this.direction;
         if (dir > 3) dir -= 4;
         return dir;
     }
 
     performFunction() {
-        var obs = this.look();
+        const obs = this.look();
         this.org.brain.observe(obs);
     }
 
     look() {
-        var env = this.org.env;
-        var direction = this.getAbsoluteDirection();
-        var addCol = 0;
-        var addRow = 0;
+        const env = this.org.env;
+        const direction = this.getAbsoluteDirection();
+        let addCol = 0;
+        let addRow = 0;
         switch (direction) {
             case Directions.up:
                 addRow = -1;
@@ -56,12 +56,12 @@ class EyeCell extends BodyCell {
                 addCol = -1;
                 break;
         }
-        var start_col = this.getRealCol();
-        var start_row = this.getRealRow();
-        var col = start_col;
-        var row = start_row;
-        var cell = null;
-        for (var i = 0; i < Hyperparams.lookRange; i++) {
+        const start_col = this.getRealCol();
+        const start_row = this.getRealRow();
+        let col = start_col;
+        let row = start_row;
+        let cell = null;
+        for (let i = 0; i < Hyperparams.lookRange; i++) {
             col += addCol;
             row += addRow;
             cell = env.grid_map.cellAt(col, row);
@@ -72,7 +72,7 @@ class EyeCell extends BodyCell {
                 continue;
             }
             if (cell.state !== CellStates.empty) {
-                var distance =
+                const distance =
                     Math.abs(start_col - col) + Math.abs(start_row - row);
                 return new Observation(cell, distance, direction);
             }

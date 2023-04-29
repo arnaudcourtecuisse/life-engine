@@ -1,6 +1,3 @@
-const CellStates = require("./CellStates");
-const Hyperparams = require("../../Hyperparameters");
-
 // A cell exists in a grid map.
 class Cell {
     constructor(state, col, row, x, y) {

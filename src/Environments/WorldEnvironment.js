@@ -29,9 +29,9 @@ class WorldEnvironment extends Environment {
     }
 
     update() {
-        var to_remove = [];
-        for (var i in this.organisms) {
-            var org = this.organisms[i];
+        const to_remove = [];
+        for (const i in this.organisms) {
+            const org = this.organisms[i];
             if (!org.living || !org.update()) {
                 to_remove.push(i);
             }
@@ -60,8 +60,8 @@ class WorldEnvironment extends Environment {
     }
 
     removeOrganisms(org_indeces) {
-        let start_pop = this.organisms.length;
-        for (var i of org_indeces.reverse()) {
+        const start_pop = this.organisms.length;
+        for (const i of org_indeces.reverse()) {
             this.total_mutability -= this.organisms[i].mutability;
             this.organisms.splice(i, 1);
         }
@@ -75,8 +75,8 @@ class WorldEnvironment extends Environment {
     }
 
     OriginOfLife() {
-        var center = this.grid_map.getCenter();
-        var org = new Organism(center[0], center[1], this);
+        const center = this.grid_map.getCenter();
+        const org = new Organism(center[0], center[1], this);
         org.anatomy.addDefaultCell(CellStates.mouth, 0, 0);
         org.anatomy.addDefaultCell(CellStates.producer, 1, 1);
         org.anatomy.addDefaultCell(CellStates.producer, -1, -1);
@@ -108,29 +108,29 @@ class WorldEnvironment extends Environment {
     }
 
     clearWalls() {
-        for (var wall of this.walls) {
-            let wcell = this.grid_map.cellAt(wall.col, wall.row);
+        for (const wall of this.walls) {
+            const wcell = this.grid_map.cellAt(wall.col, wall.row);
             if (wcell && wcell.state == CellStates.wall)
                 this.changeCell(wall.col, wall.row, CellStates.empty, null);
         }
     }
 
     clearOrganisms() {
-        for (var org of this.organisms) org.die();
+        for (const org of this.organisms) org.die();
         this.organisms = [];
     }
 
     clearDeadOrganisms() {
-        let to_remove = [];
-        for (let i in this.organisms) {
-            let org = this.organisms[i];
+        const to_remove = [];
+        for (const i in this.organisms) {
+            const org = this.organisms[i];
             if (!org.living) to_remove.push(i);
         }
         this.removeOrganisms(to_remove);
     }
 
     generateFood() {
-        var num_food = Math.max(
+        const num_food = Math.max(
             Math.floor(
                 (this.grid_map.cols *
                     this.grid_map.rows *
@@ -139,11 +139,11 @@ class WorldEnvironment extends Environment {
             ),
             1
         );
-        var prob = Hyperparams.foodDropProb;
-        for (var i = 0; i < num_food; i++) {
+        const prob = Hyperparams.foodDropProb;
+        for (let i = 0; i < num_food; i++) {
             if (Math.random() <= prob) {
-                var c = Math.floor(Math.random() * this.grid_map.cols);
-                var r = Math.floor(Math.random() * this.grid_map.rows);
+                const c = Math.floor(Math.random() * this.grid_map.cols);
+                const r = Math.floor(Math.random() * this.grid_map.rows);
 
                 if (this.grid_map.cellAt(c, r).state == CellStates.empty) {
                     this.changeCell(c, r, CellStates.food, null);
@@ -188,10 +188,10 @@ class WorldEnvironment extends Environment {
 
     serialize() {
         this.clearDeadOrganisms();
-        let env = SerializeHelper.copyNonObjects(this);
+        const env = SerializeHelper.copyNonObjects(this);
         env.grid = this.grid_map.serialize();
         env.organisms = [];
-        for (let org of this.organisms) {
+        for (const org of this.organisms) {
             env.organisms.push(org.serialize());
         }
         env.fossil_record = FossilRecord.serialize();
@@ -211,9 +211,9 @@ class WorldEnvironment extends Environment {
         this.grid_map.loadRaw(env.grid);
 
         // create species map
-        let species = {};
-        for (let name in env.fossil_record.species) {
-            let s = new Species(null, null, 0);
+        const species = {};
+        for (const name in env.fossil_record.species) {
+            const s = new Species(null, null, 0);
             SerializeHelper.overwriteNonObjects(
                 env.fossil_record.species[name],
                 s
@@ -221,8 +221,8 @@ class WorldEnvironment extends Environment {
             species[name] = s; // the species needs an anatomy obj still
         }
 
-        for (let orgRaw of env.organisms) {
-            let org = new Organism(orgRaw.col, orgRaw.row, this);
+        for (const orgRaw of env.organisms) {
+            const org = new Organism(orgRaw.col, orgRaw.row, this);
             org.loadRaw(orgRaw);
             this.addOrganism(org);
             let s = species[orgRaw.species_name];
@@ -238,7 +238,7 @@ class WorldEnvironment extends Environment {
             }
             org.species = s;
         }
-        for (let name in species) FossilRecord.addSpeciesObj(species[name]);
+        for (const name in species) FossilRecord.addSpeciesObj(species[name]);
         FossilRecord.loadRaw(env.fossil_record);
         SerializeHelper.overwriteNonObjects(env, this);
         if ($("#override-controls").is(":checked"))

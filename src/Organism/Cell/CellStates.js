@@ -60,11 +60,11 @@ class Eye extends CellState {
         ctx.fillStyle = this.color;
         ctx.fillRect(cell.x, cell.y, size, size);
         if (size == 1) return;
-        var half = size / 2;
-        var x = -size / 8;
-        var y = -half;
-        var h = size / 2 + size / 4;
-        var w = size / 4;
+        const half = size / 2;
+        const x = -size / 8;
+        const y = -half;
+        const h = size / 2 + size / 4;
+        const w = size / 4;
         ctx.translate(cell.x + half, cell.y + half);
         ctx.rotate(
             (cell.cell_owner.getAbsoluteDirection() * 90 * Math.PI) / 180

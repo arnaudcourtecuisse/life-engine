@@ -21,7 +21,7 @@ class Brain {
 
         // corresponds to CellTypes
         this.decisions = {};
-        for (let cell of CellStates.all) {
+        for (const cell of CellStates.all) {
             this.decisions[cell.name] = Decision.neutral;
         }
         this.decisions[CellStates.food.name] = Decision.chase;
@@ -29,7 +29,7 @@ class Brain {
     }
 
     copy(brain) {
-        for (let dec in brain.decisions) {
+        for (const dec in brain.decisions) {
             this.decisions[dec] = brain.decisions[dec];
         }
     }
@@ -52,10 +52,10 @@ class Brain {
     }
 
     decide() {
-        var decision = Decision.neutral;
-        var closest = Hyperparams.lookRange + 1;
-        var move_direction = 0;
-        for (var obs of this.observations) {
+        let decision = Decision.neutral;
+        let closest = Hyperparams.lookRange + 1;
+        let move_direction = 0;
+        for (const obs of this.observations) {
             if (obs.cell == null || obs.cell.owner == this.owner) {
                 continue;
             }

@@ -20,11 +20,11 @@ class Species {
 
     calcAnatomyDetails() {
         if (!this.anatomy) return;
-        var cell_counts = {};
-        for (let c of CellStates.living) {
+        const cell_counts = {};
+        for (const c of CellStates.living) {
             cell_counts[c.name] = 0;
         }
-        for (let cell of this.anatomy.cells) {
+        for (const cell of this.anatomy.cells) {
             cell_counts[cell.state.name] += 1;
         }
         this.cell_counts = cell_counts;

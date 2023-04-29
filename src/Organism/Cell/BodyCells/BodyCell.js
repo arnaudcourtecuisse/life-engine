@@ -1,4 +1,3 @@
-const CellStates = require("../CellStates");
 const Directions = require("../../Directions");
 
 // A body cell defines the relative location of the cell in it's parent organism. It also defines their functional behavior.
@@ -9,7 +8,7 @@ class BodyCell {
         this.loc_col = loc_col;
         this.loc_row = loc_row;
 
-        var distance = Math.max(
+        const distance = Math.max(
             Math.abs(loc_row) * 2 + 2,
             Math.abs(loc_col) * 2 + 2
         );
@@ -32,7 +31,7 @@ class BodyCell {
         // initialize to default values
     }
 
-    performFunction(env) {
+    performFunction() {
         // default behavior: none
     }
 
@@ -45,8 +44,8 @@ class BodyCell {
     }
 
     getRealCell() {
-        var real_c = this.getRealCol();
-        var real_r = this.getRealRow();
+        const real_c = this.getRealCol();
+        const real_r = this.getRealRow();
         return this.org.env.grid_map.cellAt(real_c, real_r);
     }
 

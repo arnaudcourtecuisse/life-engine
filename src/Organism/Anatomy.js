@@ -17,7 +17,7 @@ class Anatomy {
     }
 
     canAddCellAt(c, r) {
-        for (var cell of this.cells) {
+        for (const cell of this.cells) {
             if (cell.loc_col == c && cell.loc_row == r) {
                 return false;
             }
@@ -26,7 +26,7 @@ class Anatomy {
     }
 
     addDefaultCell(state, c, r) {
-        var new_cell = BodyCellFactory.createDefault(this.owner, state, c, r);
+        const new_cell = BodyCellFactory.createDefault(this.owner, state, c, r);
         this.cells.push(new_cell);
         return new_cell;
     }
@@ -35,13 +35,13 @@ class Anatomy {
         if (state == CellStates.eye && !this.has_eyes) {
             this.owner.brain.randomizeDecisions();
         }
-        var new_cell = BodyCellFactory.createRandom(this.owner, state, c, r);
+        const new_cell = BodyCellFactory.createRandom(this.owner, state, c, r);
         this.cells.push(new_cell);
         return new_cell;
     }
 
     addInheritCell(parent_cell) {
-        var new_cell = BodyCellFactory.createInherited(this.owner, parent_cell);
+        const new_cell = BodyCellFactory.createInherited(this.owner, parent_cell);
         this.cells.push(new_cell);
         return new_cell;
     }
@@ -57,8 +57,8 @@ class Anatomy {
 
     removeCell(c, r, allow_center_removal = false) {
         if (c == 0 && r == 0 && !allow_center_removal) return false;
-        for (var i = 0; i < this.cells.length; i++) {
-            var cell = this.cells[i];
+        for (let i = 0; i < this.cells.length; i++) {
+            const cell = this.cells[i];
             if (cell.loc_col == c && cell.loc_row == r) {
                 this.cells.splice(i, 1);
                 break;
@@ -69,7 +69,7 @@ class Anatomy {
     }
 
     getLocalCell(c, r) {
-        for (var cell of this.cells) {
+        for (const cell of this.cells) {
             if (cell.loc_col == c && cell.loc_row == r) {
                 return cell;
             }
@@ -81,7 +81,7 @@ class Anatomy {
         this.is_producer = false;
         this.is_mover = false;
         this.has_eyes = false;
-        for (var cell of this.cells) {
+        for (const cell of this.cells) {
             if (cell.state == CellStates.producer) this.is_producer = true;
             if (cell.state == CellStates.mover) this.is_mover = true;
             if (cell.state == CellStates.eye) this.has_eyes = true;
@@ -93,10 +93,10 @@ class Anatomy {
     }
 
     getNeighborsOfCell(col, row) {
-        var neighbors = [];
-        for (var x = -1; x <= 1; x++) {
-            for (var y = -1; y <= 1; y++) {
-                var neighbor = this.getLocalCell(col + x, row + y);
+        const neighbors = [];
+        for (let x = -1; x <= 1; x++) {
+            for (let y = -1; y <= 1; y++) {
+                const neighbor = this.getLocalCell(col + x, row + y);
                 if (neighbor) neighbors.push(neighbor);
             }
         }
@@ -107,9 +107,9 @@ class Anatomy {
     isEqual(anatomy) {
         // currently unused helper func. inefficient, avoid usage in prod.
         if (this.cells.length !== anatomy.cells.length) return false;
-        for (let i in this.cells) {
-            let my_cell = this.cells[i];
-            let their_cell = anatomy.cells[i];
+        for (const i in this.cells) {
+            const my_cell = this.cells[i];
+            const their_cell = anatomy.cells[i];
             if (
                 my_cell.loc_col !== their_cell.loc_col ||
                 my_cell.loc_row !== their_cell.loc_row ||
@@ -121,10 +121,10 @@ class Anatomy {
     }
 
     serialize() {
-        let anatomy = SerializeHelper.copyNonObjects(this);
+        const anatomy = SerializeHelper.copyNonObjects(this);
         anatomy.cells = [];
-        for (let cell of this.cells) {
-            let newcell = SerializeHelper.copyNonObjects(cell);
+        for (const cell of this.cells) {
+            const newcell = SerializeHelper.copyNonObjects(cell);
             newcell.state = { name: cell.state.name };
             anatomy.cells.push(newcell);
         }
@@ -133,7 +133,7 @@ class Anatomy {
 
     loadRaw(anatomy) {
         this.clear();
-        for (let cell of anatomy.cells) {
+        for (const cell of anatomy.cells) {
             this.addInheritCell(cell);
         }
     }

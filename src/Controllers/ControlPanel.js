@@ -49,7 +49,7 @@ class ControlPanel {
 
     defineHotkeys() {
         $("body").keydown((e) => {
-            let focused = document.activeElement;
+            const focused = document.activeElement;
             if (focused.tagName === "INPUT" && focused.type === "text") return;
             switch (e.key.toLowerCase()) {
                 // hot bar controls
@@ -93,10 +93,10 @@ class ControlPanel {
                     break;
                 case "v": // toggle hud
                     if (this.no_hud) {
-                        let control_panel_display = this.control_panel_active
+                        const control_panel_display = this.control_panel_active
                             ? "grid"
                             : "none";
-                        let hot_control_display = !this.control_panel_active
+                        const hot_control_display = !this.control_panel_active
                             ? "block"
                             : "none";
                         if (
@@ -134,7 +134,7 @@ class ControlPanel {
             if (this.engine.running) {
                 this.changeEngineSpeed(this.fps);
             }
-            let text = this.fps >= max_fps ? "MAX" : this.fps;
+            const text = this.fps >= max_fps ? "MAX" : this.fps;
             $("#fps").text("Target FPS: " + text);
         }.bind(this);
 
@@ -162,10 +162,10 @@ class ControlPanel {
 
     defineTabNavigation() {
         this.tab_id = "about";
-        var self = this;
+        const self = this;
         $(".tabnav-item").click(function () {
             $(".tab").css("display", "none");
-            var tab = "#" + this.id + ".tab";
+            const tab = "#" + this.id + ".tab";
             $(tab).css("display", "grid");
             $(".tabnav-item").removeClass("open-tab");
             $("#" + this.id + ".tabnav-item").addClass("open-tab");
@@ -188,13 +188,13 @@ class ControlPanel {
 
         $("#resize").click(
             function () {
-                var cell_size = $("#cell-size").val();
-                var fill_window = $("#fill-window").is(":checked");
+                const cell_size = $("#cell-size").val();
+                const fill_window = $("#fill-window").is(":checked");
                 if (fill_window) {
                     this.engine.env.resizeFillWindow(cell_size);
                 } else {
-                    var cols = $("#col-input").val();
-                    var rows = $("#row-input").val();
+                    const cols = $("#col-input").val();
+                    const rows = $("#row-input").val();
                     this.engine.env.resizeGridColRow(cell_size, cols, rows);
                 }
                 this.engine.env.reset();
@@ -212,20 +212,20 @@ class ControlPanel {
             WorldConfig.clear_walls_on_reset = this.checked;
         });
         $("#reset-with-editor-org").click(() => {
-            let env = this.engine.env;
+            const env = this.engine.env;
             if (!env.reset(true, false)) return;
-            let center = env.grid_map.getCenter();
-            let org = this.editor_controller.env.getCopyOfOrg();
+            const center = env.grid_map.getCenter();
+            const org = this.editor_controller.env.getCopyOfOrg();
             this.env_controller.dropOrganism(org, center[0], center[1]);
         });
         $("#save-env").click(() => {
-            let was_running = this.engine.running;
+            const was_running = this.engine.running;
             this.setPaused(true);
-            let env = this.engine.env.serialize();
-            let data =
+            const env = this.engine.env.serialize();
+            const data =
                 "data:text/json;charset=utf-8," +
                 encodeURIComponent(JSON.stringify(env));
-            let downloadEl = document.getElementById("download-el");
+            const downloadEl = document.getElementById("download-el");
             downloadEl.setAttribute("href", data);
             downloadEl.setAttribute(
                 "download",
@@ -240,14 +240,14 @@ class ControlPanel {
             });
         });
         $("#upload-env").change((e) => {
-            let files = e.target.files;
+            const files = e.target.files;
             if (!files.length) {
                 return;
             }
-            let reader = new FileReader();
+            const reader = new FileReader();
             reader.onload = (e) => {
                 try {
-                    let env = JSON.parse(e.target.result);
+                    const env = JSON.parse(e.target.result);
                     this.loadEnv(env);
                 } catch (except) {
                     console.error(except);
@@ -261,7 +261,7 @@ class ControlPanel {
 
     loadEnv(env) {
         if (this.tab_id == "stats") this.stats_panel.stopAutoRender();
-        let was_running = this.engine.running;
+        const was_running = this.engine.running;
         this.setPaused(true);
         this.engine.env.loadRaw(env);
         if (was_running) this.setPaused(false);
@@ -346,10 +346,10 @@ class ControlPanel {
             this.setHyperparamDefaults();
         });
         $("#save-controls").click(() => {
-            let data =
+            const data =
                 "data:text/json;charset=utf-8," +
                 encodeURIComponent(JSON.stringify(Hyperparams));
-            let downloadEl = document.getElementById("download-el");
+            const downloadEl = document.getElementById("download-el");
             downloadEl.setAttribute("href", data);
             downloadEl.setAttribute("download", "controls.json");
             downloadEl.click();
@@ -358,13 +358,13 @@ class ControlPanel {
             $("#upload-hyperparams").click();
         });
         $("#upload-hyperparams").change((e) => {
-            let files = e.target.files;
+            const files = e.target.files;
             if (!files.length) {
                 return;
             }
-            let reader = new FileReader();
+            const reader = new FileReader();
             reader.onload = (e) => {
-                let result = JSON.parse(e.target.result);
+                const result = JSON.parse(e.target.result);
                 Hyperparams.loadJsonObj(result);
                 this.updateHyperparamUIValues();
                 // have to clear the value so change() will be triggered if the same file is uploaded again
@@ -409,7 +409,7 @@ class ControlPanel {
     }
 
     defineModeControls() {
-        var self = this;
+        const self = this;
         $(".edit-mode-btn").click(function () {
             $("#cell-selections").css("display", "none");
             $("#organism-options").css("display", "none");
@@ -445,7 +445,7 @@ class ControlPanel {
             }.bind(this)
         );
 
-        var env = this.engine.env;
+        const env = this.engine.env;
         $("#reset-env").click(
             function () {
                 env.reset();
@@ -488,7 +488,7 @@ class ControlPanel {
 
         window.onbeforeunload = function (e) {
             e = e || window.event;
-            let return_str = "this will cause a confirmation on page close";
+            const return_str = "this will cause a confirmation on page close";
             if (e) {
                 e.returnValue = return_str;
             }
@@ -536,7 +536,7 @@ class ControlPanel {
     updateHeadlessIcon(delta_time) {
         if (!this.engine.running) return;
         const min_opacity = 0.4;
-        var op =
+        let op =
             this.headless_opacity +
             (this.opacity_change_rate * delta_time) / 1000;
         if (op <= min_opacity) {

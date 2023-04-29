@@ -23,7 +23,7 @@ class CellsChart extends ChartController {
             legendText: "Avg. organism size",
             dataPoints: [],
         });
-        for (var c of CellStates.living) {
+        for (const c of CellStates.living) {
             this.data.push({
                 type: "line",
                 markerType: "none",
@@ -38,12 +38,12 @@ class CellsChart extends ChartController {
     }
 
     addDataPoint(i) {
-        var t = FossilRecord.tick_record[i];
-        var p = FossilRecord.av_cells[i];
+        const t = FossilRecord.tick_record[i];
+        const p = FossilRecord.av_cells[i];
         this.data[0].dataPoints.push({ x: t, y: p });
-        var j = 1;
-        for (var name in FossilRecord.av_cell_counts[i]) {
-            var count = FossilRecord.av_cell_counts[i][name];
+        let j = 1;
+        for (const name in FossilRecord.av_cell_counts[i]) {
+            const count = FossilRecord.av_cell_counts[i][name];
             this.data[j].dataPoints.push({ x: t, y: count });
             j++;
         }

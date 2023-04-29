@@ -1,3 +1,4 @@
+const CanvasJS = require("../../vendor/canvasjs.min");
 const FossilRecord = require("../FossilRecord");
 
 class ChartController {
@@ -27,13 +28,13 @@ class ChartController {
     }
 
     setMinimum() {
-        var min = 0;
+        let min = 0;
         if (this.data[0].dataPoints != []) min = this.data[0].dataPoints[0].x;
         this.chart.options.axisX.minimum = min;
     }
 
     addAllDataPoints() {
-        for (var i in FossilRecord.tick_record) {
+        for (const i in FossilRecord.tick_record) {
             this.addDataPoint(i);
         }
     }
@@ -44,8 +45,8 @@ class ChartController {
     }
 
     updateData() {
-        let record_size = FossilRecord.tick_record.length;
-        let data_points = this.data[0].dataPoints;
+        const record_size = FossilRecord.tick_record.length;
+        const data_points = this.data[0].dataPoints;
         let newest_t = -1;
         if (data_points.length > 0) {
             newest_t = this.data[0].dataPoints[data_points.length - 1].x;
@@ -68,18 +69,18 @@ class ChartController {
 
     addNewest(to_add) {
         for (let i = to_add; i > 0; i--) {
-            let j = FossilRecord.tick_record.length - i;
+            const j = FossilRecord.tick_record.length - i;
             this.addDataPoint(j);
         }
     }
 
     removeOldest() {
-        for (var dps of this.data) {
+        for (const dps of this.data) {
             dps.dataPoints.shift();
         }
     }
 
-    addDataPoint(i) {
+    addDataPoint() {
         alert("Must override addDataPoint");
     }
 
