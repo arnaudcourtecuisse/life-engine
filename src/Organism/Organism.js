@@ -6,6 +6,7 @@ const Anatomy = require("./Anatomy");
 const Brain = require("./Perception/Brain");
 const FossilRecord = require("../Stats/FossilRecord");
 const SerializeHelper = require("../Utils/SerializeHelper");
+const Random = require("../Utils/Random");
 
 class Organism {
     constructor(col, row, env, parent = null) {
@@ -18,7 +19,6 @@ class Organism {
         this.anatomy = new Anatomy(this);
         this.direction = Directions.down; // direction of movement
         this.rotation = Directions.up; // direction of rotation
-        this.can_rotate = Hyperparams.rotationEnabled;
         this.move_count = 0;
         this.move_range = 4;
         this.ignore_brain_for = 0;
@@ -60,95 +60,98 @@ class Organism {
 
     reproduce() {
         //produce mutated child
-        //check nearby locations (is there room and a direct path)
         const org = new Organism(0, 0, this.env, this);
-        if (Hyperparams.rotationEnabled) {
-            org.rotation = Directions.getRandomDirection();
-        }
-        let prob = this.mutability;
-        if (Hyperparams.useGlobalMutability) {
-            prob = Hyperparams.globalMutability;
-        } else {
-            //mutate the mutability
-            if (Math.random() <= 0.5) org.mutability++;
-            else {
-                org.mutability--;
-                if (org.mutability < 1) org.mutability = 1;
-            }
-        }
-        let mutated = false;
-        if (Math.random() * 100 <= prob) {
-            if (org.anatomy.is_mover && Math.random() * 100 <= 10) {
-                if (org.anatomy.has_eyes) {
-                    org.brain.mutate();
-                }
-                org.move_range += Math.floor(Math.random() * 4) - 2;
-                if (org.move_range <= 0) {
-                    org.move_range = 1;
-                }
-            } else {
-                mutated = org.mutate();
-            }
-        }
+        const has_mutated = org.mutate(this.mutability);
 
-        const direction = Directions.getRandomScalar();
-        const direction_c = direction[0];
-        const direction_r = direction[1];
-        const offset = Math.floor(Math.random() * 3);
-        const basemovement = this.anatomy.birth_distance;
-        const new_c = this.c + direction_c * basemovement + direction_c * offset;
-        const new_r = this.r + direction_r * basemovement + direction_r * offset;
-
+        // compute child location
+        const distance = this.anatomy.birth_distance + Random.randomInt(3);
+        const [direction_c, direction_r] = Directions.getRandomScalar();
+        const new_c = this.c + direction_c * distance;
+        const new_r = this.r + direction_r * distance;
+        const new_rotation = Hyperparams.rotationEnabled
+            ? Directions.getRandomDirection()
+            : this.direction;
         if (
-            org.isClear(new_c, new_r, org.rotation, true) &&
+            org.isClear(new_c, new_r, new_rotation, true) &&
             org.isStraightPath(new_c, new_r, this.c, this.r, this)
         ) {
+            // set child in the env
             org.c = new_c;
             org.r = new_r;
+            org.rotation = new_rotation;
             this.env.addOrganism(org);
             org.updateGrid();
-            if (mutated) {
+            if (has_mutated) {
                 FossilRecord.addSpecies(org, this.species);
             } else {
                 org.species.addPop();
             }
         }
-        Math.max((this.food_collected -= this.foodNeeded()), 0);
+        this.food_collected -= Math.min(this.food_collected, this.foodNeeded());
     }
 
     mutate() {
-        let added = false;
-        let changed = false;
-        let removed = false;
-        if (this.calcRandomChance(Hyperparams.addProb)) {
+        this.mutability = Hyperparams.useGlobalMutability
+            ? Hyperparams.globalMutability
+            : Random.randomInt(
+                  this.mutability + 2,
+                  Math.max(1, this.mutability - 1)
+              );
+        if (Random.randomChance(this.mutability, 2)) {
+            // Higher chance of behavioral change
+            this.mutateBehavior();
+        }
+
+        return Random.randomChance(this.mutability) && this.mutateBody();
+    }
+
+    mutateBehavior() {
+        const possibleMutations = [];
+
+        if (this.anatomy.has_eyes) {
+            possibleMutations.push(() => {
+                this.brain.mutate();
+            });
+        }
+        if (this.anatomy.is_mover) {
+            possibleMutations.push(() => {
+                this.move_range += Math.max(
+                    -this.move_range,
+                    Random.randomInt(3, -2)
+                );
+            });
+        }
+        if (possibleMutations.length > 0) {
+            Random.randomPick(possibleMutations)();
+        }
+    }
+
+    mutateBody() {
+        let mutated = false;
+        if (Random.randomChance(Hyperparams.addProb)) {
             const branch = this.anatomy.getRandomCell();
             const state = CellStates.getRandomLivingType(); //branch.state;
-            const growth_direction =
-                Neighbors.all[Math.floor(Math.random() * Neighbors.all.length)];
+            const growth_direction = Random.randomPick(Neighbors.all);
             const c = branch.loc_col + growth_direction[0];
             const r = branch.loc_row + growth_direction[1];
             if (this.anatomy.canAddCellAt(c, r)) {
-                added = true;
+                mutated = true;
                 this.anatomy.addRandomizedCell(state, c, r);
             }
         }
-        if (this.calcRandomChance(Hyperparams.changeProb)) {
+        if (Random.randomChance(Hyperparams.changeProb)) {
             const cell = this.anatomy.getRandomCell();
             const state = CellStates.getRandomLivingType();
             this.anatomy.replaceCell(state, cell.loc_col, cell.loc_row);
-            changed = true;
+            mutated = true;
         }
-        if (this.calcRandomChance(Hyperparams.removeProb)) {
+        if (Random.randomChance(Hyperparams.removeProb)) {
             if (this.anatomy.cells.length > 1) {
                 const cell = this.anatomy.getRandomCell();
-                removed = this.anatomy.removeCell(cell.loc_col, cell.loc_row);
+                mutated |= this.anatomy.removeCell(cell.loc_col, cell.loc_row);
             }
         }
-        return added || changed || removed;
-    }
-
-    calcRandomChance(prob) {
-        return Math.random() * 100 < prob;
+        return mutated;
     }
 
     attemptMove() {
@@ -172,7 +175,7 @@ class Organism {
     }
 
     attemptRotate() {
-        if (!this.can_rotate) {
+        if (!Hyperparams.rotationEnabled) {
             this.direction = Directions.getRandomDirection();
             this.move_count = 0;
             return true;
