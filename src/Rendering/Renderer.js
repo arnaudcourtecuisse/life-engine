@@ -8,8 +8,8 @@ class Renderer {
         this.cell_size = cell_size;
         this.canvas = document.getElementById(canvas_id);
         this.ctx = this.canvas.getContext("2d");
-        this.fillWindow(container_id)
-		this.height = this.canvas.height;
+        this.fillWindow(container_id);
+        this.height = this.canvas.height;
         this.width = this.canvas.width;
         this.cells_to_render = new Set();
         this.cells_to_highlight = new Set();
@@ -17,7 +17,10 @@ class Renderer {
     }
 
     fillWindow(container_id) {
-        this.fillShape($('#'+container_id).height(), $('#'+container_id).width());
+        this.fillShape(
+            $("#" + container_id).height(),
+            $("#" + container_id).width()
+        );
     }
 
     fillShape(height, width) {
@@ -28,13 +31,13 @@ class Renderer {
     }
 
     clear() {
-        this.ctx.fillStyle = 'white';
+        this.ctx.fillStyle = "white";
         this.ctx.fillRect(0, 0, this.height, this.width);
     }
 
     renderFullGrid(grid) {
         for (var col of grid) {
-            for (var cell of col){
+            for (var cell of col) {
                 this.renderCell(cell);
             }
         }
@@ -52,14 +55,14 @@ class Renderer {
     }
 
     renderOrganism(org) {
-        for(var org_cell of org.anatomy.cells) {
+        for (var org_cell of org.anatomy.cells) {
             var cell = org.getRealCell(org_cell);
             this.renderCell(cell);
         }
     }
 
     addToRender(cell) {
-        if (this.highlighted_cells.has(cell)){
+        if (this.highlighted_cells.has(cell)) {
             this.cells_to_highlight.add(cell);
         }
         this.cells_to_render.add(cell);
@@ -71,11 +74,10 @@ class Renderer {
             this.highlighted_cells.add(cell);
         }
         this.cells_to_highlight.clear();
-        
     }
 
     highlightOrganism(org) {
-        for(var org_cell of org.anatomy.cells) {
+        for (var org_cell of org.anatomy.cells) {
             var cell = org.getRealCell(org_cell);
             this.cells_to_highlight.add(cell);
         }
@@ -85,7 +87,7 @@ class Renderer {
         this.cells_to_highlight.add(cell);
     }
 
-    renderCellHighlight(cell, color="yellow") {
+    renderCellHighlight(cell, color = "yellow") {
         this.renderCell(cell);
         this.ctx.fillStyle = color;
         this.ctx.globalAlpha = 0.5;
@@ -94,7 +96,7 @@ class Renderer {
         this.highlighted_cells.add(cell);
     }
 
-    clearAllHighlights(clear_to_highlight=false) {
+    clearAllHighlights(clear_to_highlight = false) {
         for (var cell of this.highlighted_cells) {
             this.renderCell(cell);
         }

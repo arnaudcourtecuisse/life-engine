@@ -1,10 +1,9 @@
 const CellStates = require("../Organism/Cell/CellStates");
 let FossilRecord = undefined; // workaround to a circular dependency problem
 const getFossilRecord = () => {
-    if (!FossilRecord)
-        FossilRecord = require("./FossilRecord");
+    if (!FossilRecord) FossilRecord = require("./FossilRecord");
     return FossilRecord;
-}
+};
 
 class Species {
     constructor(anatomy, ancestor, start_tick) {
@@ -26,9 +25,9 @@ class Species {
             cell_counts[c.name] = 0;
         }
         for (let cell of this.anatomy.cells) {
-            cell_counts[cell.state.name]+=1;
+            cell_counts[cell.state.name] += 1;
         }
-        this.cell_counts=cell_counts;
+        this.cell_counts = cell_counts;
     }
 
     addPop() {

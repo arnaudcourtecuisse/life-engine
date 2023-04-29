@@ -1,10 +1,8 @@
-
 //An evironment has a grid_map, controller, and renderer
-class Environment{
-    constructor() {
-    }
+class Environment {
+    constructor() {}
 
-    update(){
+    update() {
         alert("Environment.update() must be overriden");
     }
 
@@ -13,6 +11,5 @@ class Environment{
         this.grid_map.setCellOwner(c, r, owner);
     }
 }
-
 
 module.exports = Environment;
