@@ -10,6 +10,7 @@ class Anatomy {
     }
 
     clear() {
+        this.grid = {};
         this.cells = [];
         this.is_producer = false;
         this.is_mover = false;
@@ -28,6 +29,7 @@ class Anatomy {
     addDefaultCell(state, c, r) {
         const new_cell = BodyCellFactory.createDefault(this.owner, state, c, r);
         this.cells.push(new_cell);
+        this.grid[[c, r]] = new_cell;
         return new_cell;
     }
 
@@ -37,12 +39,17 @@ class Anatomy {
         }
         const new_cell = BodyCellFactory.createRandom(this.owner, state, c, r);
         this.cells.push(new_cell);
+        this.grid[[c, r]] = new_cell;
         return new_cell;
     }
 
     addInheritCell(parent_cell) {
-        const new_cell = BodyCellFactory.createInherited(this.owner, parent_cell);
+        const new_cell = BodyCellFactory.createInherited(
+            this.owner,
+            parent_cell
+        );
         this.cells.push(new_cell);
+        this.grid[[parent_cell.loc_col, parent_cell.loc_row]] = new_cell;
         return new_cell;
     }
 
@@ -61,6 +68,7 @@ class Anatomy {
             const cell = this.cells[i];
             if (cell.loc_col == c && cell.loc_row == r) {
                 this.cells.splice(i, 1);
+                delete this.grid[[c, r]];
                 break;
             }
         }

@@ -6,10 +6,6 @@ const FossilRecord = {
     init: function () {
         this.extant_species = {};
         this.extinct_species = {};
-
-        // if an organism has fewer than this cumulative pop, discard them on extinction
-        this.min_discard = 10;
-
         this.record_size_limit = 500; // store this many data points
     },
 
@@ -24,6 +20,14 @@ const FossilRecord = {
             ancestor,
             this.env.total_ticks
         );
+        if (new_species.name in this.extinct_species) {
+            this.resurrect(this.extinct_species[new_species.name], ancestor);
+        }
+        if (new_species.name in this.extant_species) {
+            org.species = this.extant_species[new_species.name];
+            org.species.addPop();
+            return org.species;
+        }
         this.extant_species[new_species.name] = new_species;
         org.species = new_species;
         return new_species;
@@ -50,22 +54,22 @@ const FossilRecord = {
 
     fossilize: function (species) {
         if (!this.extant_species[species.name]) {
-            console.warn("Tried to fossilize non existing species.");
+            console.warn(
+                `Tried to fossilize non existing species: ${species.name}`
+            );
             return false;
         }
         species.end_tick = this.env.total_ticks;
         species.ancestor = undefined; // garbage collect ancestors
         delete this.extant_species[species.name];
-        if (species.cumulative_pop >= this.min_discard) {
-            // TODO: store as extinct species
-            return true;
-        }
-        return false;
+        this.extinct_species[species.name] = species;
+        return true;
     },
 
-    resurrect: function (species) {
+    resurrect: function (species, new_ancestor) {
         if (species.extinct) {
             species.extinct = false;
+            species.ancestor = new_ancestor;
             this.extant_species[species.name] = species;
             delete this.extinct_species[species.name];
         }
@@ -105,20 +109,11 @@ const FossilRecord = {
         for (const c of CellStates.living) {
             cell_counts[c.name] = 0;
         }
-        let first = true;
         for (const s of Object.values(this.extant_species)) {
-            if (
-                !first &&
-                this.numExtantSpecies() > 10 &&
-                s.cumulative_pop < this.min_discard
-            ) {
-                continue;
-            }
             for (const name in s.cell_counts) {
                 cell_counts[name] += s.cell_counts[name] * s.population;
             }
             total_org += s.population;
-            first = false;
         }
         if (total_org == 0) {
             this.av_cells.push(0);
