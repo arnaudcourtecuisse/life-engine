@@ -6,8 +6,7 @@ class CellsChart extends ChartController {
     constructor() {
         super(
             "Organism Size / Composition",
-            "Avg. Number of Cells per Organism",
-            "Note: to maintain efficiency, species with very small populations are discarded when collecting cell statistics."
+            "Avg. Number of Cells per Organism"
         );
     }
 

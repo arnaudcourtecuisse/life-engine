@@ -10,6 +10,7 @@
         "build": "webpack --mode=production",
         "build:dev": "webpack --mode=development",
         "build:watch": "webpack --watch --mode=development",
+        "start:dev": "http-server -c-1 dist",
         "start": "http-server dist"
     },
     "repository": {

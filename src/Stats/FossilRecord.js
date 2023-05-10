@@ -103,14 +103,18 @@ const FossilRecord = {
         this.extinct_species[species.name] = species;
         if (species === this.largest_extant_species) {
             // recompute largest live species
-            this.largest_extant_species = Object.values(
-                this.extant_species
-            ).reduce((largest, sp) =>
-                largest.anatomy.cells.length > sp.anatomy.cells.length
-                    ? largest
-                    : sp
-            );
+            this.largest_extant_species = this.getLargestExtant();
         }
+    },
+
+    getLargestExtant() {
+        const species = Object.values(this.extant_species);
+        if (species.length === 0) return null;
+        return species.reduce((largest, sp) =>
+            largest.anatomy.cells.length > sp.anatomy.cells.length
+                ? largest
+                : sp
+        );
     },
 
     resurrect: function (species, new_ancestor) {

@@ -463,6 +463,7 @@ class ControlPanel {
         );
         $("#clear-walls").click(
             function () {
+                if (!confirm("This will remove all walls. Proceed?")) return;
                 this.engine.env.clearWalls();
             }.bind(this)
         );

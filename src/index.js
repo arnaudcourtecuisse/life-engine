@@ -8,7 +8,8 @@ $("document").ready(function () {
             "Welcome to the Life Engine! Be aware the website is not built for mobile, so try on desktop for the best experience!"
         );
     }
-    new Engine().start(60);
+    window.lifeEngine = new Engine();
+    window.lifeEngine.start(60);
 });
 
 function mobileCheck() {
