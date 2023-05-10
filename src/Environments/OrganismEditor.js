@@ -4,7 +4,6 @@ const GridMap = require("../Grid/GridMap");
 const Renderer = require("../Rendering/Renderer");
 const CellStates = require("../Organism/Cell/CellStates");
 const EditorController = require("../Controllers/EditorController");
-const Species = require("../Stats/Species");
 const RandomOrganismGenerator = require("../Organism/RandomOrganismGenerator");
 
 class OrganismEditor extends Environment {
@@ -55,7 +54,6 @@ class OrganismEditor extends Environment {
                 this.organism.anatomy.addDefaultCell(state, loc_c, loc_r)
             );
         }
-        this.organism.species = new Species(this.organism.anatomy, null, 0);
     }
 
     removeCellFromOrg(c, r) {
@@ -70,11 +68,6 @@ class OrganismEditor extends Environment {
         if (prev_cell != null) {
             if (this.organism.anatomy.removeCell(loc_c, loc_r)) {
                 this.changeCell(c, r, CellStates.empty, null);
-                this.organism.species = new Species(
-                    this.organism.anatomy,
-                    null,
-                    0
-                );
             }
         }
     }
@@ -98,7 +91,6 @@ class OrganismEditor extends Environment {
         this.organism = new Organism(center[0], center[1], this, null);
         this.organism.anatomy.addDefaultCell(CellStates.mouth, 0, 0);
         this.organism.updateGrid();
-        this.organism.species = new Species(this.organism.anatomy, null, 0);
     }
 
     createRandom() {
@@ -106,7 +98,6 @@ class OrganismEditor extends Environment {
 
         this.organism = RandomOrganismGenerator.generate(this);
         this.organism.updateGrid();
-        this.organism.species = new Species(this.organism.anatomy, null, 0);
     }
 
     resetWithRandomOrgs(env) {
@@ -118,7 +109,6 @@ class OrganismEditor extends Environment {
 
         for (let i = 0; i < numOrganisms; i++) {
             const newOrganism = RandomOrganismGenerator.generate(this);
-            newOrganism.species = new Species(newOrganism.anatomy, null, 0);
             const col = Math.floor(
                 size + Math.random() * (env.grid_map.cols - size * 2)
             );

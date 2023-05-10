@@ -62,10 +62,17 @@ class StatsPanel {
         const org_count = this.env.organisms.length;
         $("#org-count").text("Total Population: " + org_count);
         $("#species-count").text(
-            "Number of Species: " + FossilRecord.numExtantSpecies()
+            "Number of Extant Species: " +
+                FossilRecord.numExtantSpecies() +
+                " / Extinct: " +
+                FossilRecord.numExtinctSpecies()
         );
         $("#largest-org").text(
-            "Largest Organism Ever: " + this.env.largest_cell_count + " cells"
+            "Largest Organism Ever: " +
+                FossilRecord.sizeOfLargestSpeciesEver() +
+                " cells / Alive: " +
+                FossilRecord.sizeOfLargestExtantSpecies() +
+                " cells"
         );
         $("#avg-mut").text(
             "Average Mutation Rate: " +

@@ -61,7 +61,7 @@ class Organism {
     reproduce() {
         //produce mutated child
         const org = new Organism(0, 0, this.env, this);
-        const has_mutated = org.mutate(this.mutability);
+        org.mutate(this.mutability);
 
         // compute child location
         const distance = this.anatomy.birth_distance + Random.randomInt(3);
@@ -81,11 +81,7 @@ class Organism {
             org.rotation = new_rotation;
             this.env.addOrganism(org);
             org.updateGrid();
-            if (has_mutated) {
-                FossilRecord.addSpecies(org, this.species);
-            } else {
-                org.species.addPop();
-            }
+            FossilRecord.registerOrganismSpecies(org, this.env.total_ticks);
         }
         this.food_collected -= Math.min(this.food_collected, this.foodNeeded());
     }
@@ -274,7 +270,7 @@ class Organism {
             const real_r = this.r + cell.rotatedRow(this.rotation);
             this.env.changeCell(real_c, real_r, CellStates.food, null);
         }
-        this.species.decreasePop();
+        FossilRecord.registerDeath(this.species);
         this.living = false;
     }
 

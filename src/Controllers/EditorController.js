@@ -3,7 +3,6 @@ const Modes = require("./ControlModes");
 const CellStates = require("../Organism/Cell/CellStates");
 const Directions = require("../Organism/Directions");
 const Hyperparams = require("../Hyperparameters");
-const Species = require("../Stats/Species");
 const LoadController = require("./LoadController");
 
 class EditorController extends CanvasController {
@@ -154,12 +153,6 @@ class EditorController extends CanvasController {
         this.refreshDetailsPanel();
         this.env.organism.updateGrid();
         this.env.renderFull();
-        this.env.organism.species = new Species(
-            this.env.organism.anatomy,
-            null,
-            0
-        );
-        if (org.species_name) this.env.organism.species.name = org.species_name;
         if (this.mode === Modes.Clone) $("#drop-org").click();
     }
 

@@ -185,7 +185,8 @@ class EnvironmentController extends CanvasController {
             //drag on middle click
             const cur_top = parseInt($("#env-canvas").css("top"), 10);
             const cur_left = parseInt($("#env-canvas").css("left"), 10);
-            const new_top = cur_top + (this.mouse_y - this.start_y) * this.scale;
+            const new_top =
+                cur_top + (this.mouse_y - this.start_y) * this.scale;
             const new_left =
                 cur_left + (this.mouse_x - this.start_x) * this.scale;
             $("#env-canvas").css("top", new_top + "px");
@@ -196,24 +197,11 @@ class EnvironmentController extends CanvasController {
     dropOrganism(organism, col, row) {
         // close the organism and drop it in the world
         const new_org = new Organism(col, row, this.env, organism);
+        if (!new_org.isClear(col, row)) return false;
 
-        if (new_org.isClear(col, row)) {
-            const new_species = !FossilRecord.speciesIsExtant(
-                new_org.species.name
-            );
-            if (new_org.species.extinct) {
-                FossilRecord.resurrect(new_org.species);
-            } else if (new_species) {
-                FossilRecord.addSpeciesObj(new_org.species);
-                new_org.species.start_tick = this.env.total_ticks;
-                new_org.species.population = 0;
-            }
-
-            this.env.addOrganism(new_org);
-            new_org.species.addPop();
-            return true;
-        }
-        return false;
+        FossilRecord.registerOrganismSpecies(new_org, this.env.total_ticks);
+        this.env.addOrganism(new_org);
+        return true;
     }
 
     dropCellType(col, row, state, killBlocking = false) {

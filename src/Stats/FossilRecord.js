@@ -2,8 +2,19 @@ const CellStates = require("../Organism/Cell/CellStates");
 const SerializeHelper = require("../Utils/SerializeHelper");
 const Species = require("./Species");
 
+const cellNaming = new Map([
+    [CellStates.producer, "p"],
+    [CellStates.mouth, "o"],
+    [CellStates.mover, "m"],
+    [CellStates.eye, "e"],
+    [CellStates.killer, "k"],
+    [CellStates.armor, "a"],
+]);
+
 const FossilRecord = {
     init: function () {
+        this.largest_species_ever = null;
+        this.largest_extant_species = null;
         this.extant_species = {};
         this.extinct_species = {};
         this.record_size_limit = 500; // store this many data points
@@ -14,65 +25,109 @@ const FossilRecord = {
         this.setData();
     },
 
-    addSpecies: function (org, ancestor) {
-        const new_species = new Species(
-            org.anatomy,
-            ancestor,
-            this.env.total_ticks
+    registerOrganismSpecies: function (organism, start_tick) {
+        const {
+            anatomy: { grid: cell_grid },
+        } = organism;
+
+        const name = Object.keys(cell_grid)
+            .sort()
+            .map((xy) => `${cellNaming.get(cell_grid[xy].state)}[${xy}]`)
+            .join("");
+
+        if (name in this.extinct_species) {
+            this.resurrect(this.extinct_species[name], organism, start_tick);
+        }
+        if (name in this.extant_species) {
+            const species = this.extant_species[name];
+            organism.species = species;
+            species.addPop();
+            return species;
+        }
+
+        const species = new Species(
+            name,
+            organism.anatomy,
+            organism,
+            start_tick
         );
-        if (new_species.name in this.extinct_species) {
-            this.resurrect(this.extinct_species[new_species.name], ancestor);
-        }
-        if (new_species.name in this.extant_species) {
-            org.species = this.extant_species[new_species.name];
-            org.species.addPop();
-            return org.species;
-        }
-        this.extant_species[new_species.name] = new_species;
-        org.species = new_species;
-        return new_species;
+        this.register(species);
+        organism.species = species;
+        return species;
     },
 
-    addSpeciesObj: function (species) {
-        if (this.extant_species[species.name]) {
-            console.warn("Tried to add already existing species. Add failed.");
-            return;
+    registerDeath: function (species) {
+        species.decreasePop();
+        if (species.extinct) {
+            this.fossilize(species);
         }
-        this.extant_species[species.name] = species;
-        return species;
     },
 
     numExtantSpecies() {
         return Object.values(this.extant_species).length;
     },
+
     numExtinctSpecies() {
         return Object.values(this.extinct_species).length;
     },
-    speciesIsExtant(species_name) {
-        return !!this.extant_species[species_name];
+
+    sizeOfLargestSpeciesEver() {
+        return this.largest_species_ever?.anatomy.cells.length ?? 0;
     },
 
+    sizeOfLargestExtantSpecies() {
+        return this.largest_extant_species?.anatomy.cells.length ?? 0;
+    },
+
+    register: function (species) {
+        this.extant_species[species.name] = species;
+        const size = species.anatomy.cells.length;
+        if (size > (this.largest_extant_species?.anatomy.cells.length ?? 0)) {
+            this.largest_extant_species = species;
+            if (size > (this.largest_species_ever?.anatomy.cells.length ?? 0)) {
+                this.largest_species_ever = species;
+            }
+        }
+    },
     fossilize: function (species) {
-        if (!this.extant_species[species.name]) {
+        if (!(species.name in this.extant_species)) {
             console.warn(
-                `Tried to fossilize non existing species: ${species.name}`
+                "Tried to fossilize unregistered species:",
+                species.name
             );
-            return false;
+            return;
         }
         species.end_tick = this.env.total_ticks;
         species.ancestor = undefined; // garbage collect ancestors
         delete this.extant_species[species.name];
         this.extinct_species[species.name] = species;
-        return true;
+        if (species === this.largest_extant_species) {
+            // recompute largest live species
+            this.largest_extant_species = Object.values(
+                this.extant_species
+            ).reduce((largest, sp) =>
+                largest.anatomy.cells.length > sp.anatomy.cells.length
+                    ? largest
+                    : sp
+            );
+        }
     },
 
     resurrect: function (species, new_ancestor) {
-        if (species.extinct) {
-            species.extinct = false;
-            species.ancestor = new_ancestor;
-            this.extant_species[species.name] = species;
-            delete this.extinct_species[species.name];
+        if (!species.extinct) {
+            console.warn("Tried to resurrect extant species:", species.name);
+            return;
         }
+        if (!(species.name in this.extinct_species)) {
+            console.warn(
+                "Tried to resurrect unregistered species:",
+                species.name
+            );
+            return;
+        }
+        species.ancestor = new_ancestor;
+        delete this.extinct_species[species.name];
+        this.register(species);
     },
 
     setData() {
@@ -157,10 +212,31 @@ const FossilRecord = {
     },
 
     loadRaw(record) {
+        for (const name in record.species) {
+            const s = new Species(name, null, null, 0);
+            SerializeHelper.overwriteNonObjects(record.species[name], s);
+            (s.extinct ? this.extinct_species : this.extant_species)[name] = s;
+        }
         SerializeHelper.overwriteNonObjects(record, this);
+
         for (const key in record.records) {
             this[key] = record.records[key];
         }
+    },
+
+    loadSpeciesFromOrgAnatomy(species_name, anatomy) {
+        let species =
+            this.extinct_species[species_name] ??
+            this.extant_species[species_name];
+
+        if (!species) {
+            species = new Species(species_name, anatomy, null, 0);
+            this.register(species);
+            return species;
+        }
+        species.anatomy = anatomy;
+        species.calcAnatomyDetails();
+        return species;
     },
 };
 
