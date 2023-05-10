@@ -9,12 +9,12 @@ class SpeciesChart extends ChartController {
     setData() {
         this.clear();
         this.data.push({
-            type: "line",
+            type: "area",
+            color: "grey",
             markerType: "none",
-            color: "black",
             showInLegend: true,
             name: "spec",
-            legendText: "Number of Species",
+            legendText: "Number of extant species",
             dataPoints: [],
         });
         this.addAllDataPoints();

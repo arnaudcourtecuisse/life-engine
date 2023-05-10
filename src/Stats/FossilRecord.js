@@ -136,7 +136,6 @@ const FossilRecord = {
         this.pop_counts = [];
         this.species_counts = [];
         this.av_mut_rates = [];
-        this.av_cells = [];
         this.av_cell_counts = [];
         this.updateData();
     },
@@ -153,7 +152,6 @@ const FossilRecord = {
             this.pop_counts.shift();
             this.species_counts.shift();
             this.av_mut_rates.shift();
-            this.av_cells.shift();
             this.av_cell_counts.shift();
         }
     },
@@ -171,17 +169,15 @@ const FossilRecord = {
             total_org += s.population;
         }
         if (total_org == 0) {
-            this.av_cells.push(0);
             this.av_cell_counts.push(cell_counts);
             return;
         }
 
-        let total_cells = 0;
+        // let total_cells = 0;
         for (const c in cell_counts) {
-            total_cells += cell_counts[c];
+            // total_cells += cell_counts[c];
             cell_counts[c] /= total_org;
         }
-        this.av_cells.push(total_cells / total_org);
         this.av_cell_counts.push(cell_counts);
     },
 

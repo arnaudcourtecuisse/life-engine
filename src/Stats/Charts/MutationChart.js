@@ -9,9 +9,9 @@ class MutationChart extends ChartController {
     setData() {
         this.clear();
         this.data.push({
-            type: "line",
+            type: "area",
+            color: "grey",
             markerType: "none",
-            color: "black",
             showInLegend: true,
             name: "pop1",
             legendText: "Average Mutation Rate",

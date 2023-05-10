@@ -14,23 +14,15 @@ class CellsChart extends ChartController {
     setData() {
         this.clear();
         //this.mouth, this.producer, this.mover, this.killer, this.armor, this.eye
-        this.data.push({
-            type: "line",
-            markerType: "none",
-            color: "black",
-            showInLegend: true,
-            name: "pop1",
-            legendText: "Avg. organism size",
-            dataPoints: [],
-        });
         for (const c of CellStates.living) {
             this.data.push({
-                type: "line",
-                markerType: "none",
-                color: c.color,
+                type: "stackedArea",
                 showInLegend: true,
+                markerType: "none",
+                toolTipContent:
+                    "<span style='\"'color: {color};'\"'><strong>{name}: </strong></span> {y}",
+                color: c.color,
                 name: c.name,
-                legendText: "Avg. " + c.name + " cells",
                 dataPoints: [],
             });
         }
@@ -39,11 +31,10 @@ class CellsChart extends ChartController {
 
     addDataPoint(i) {
         const t = FossilRecord.tick_record[i];
-        const p = FossilRecord.av_cells[i];
-        this.data[0].dataPoints.push({ x: t, y: p });
-        let j = 1;
-        for (const name in FossilRecord.av_cell_counts[i]) {
-            const count = FossilRecord.av_cell_counts[i][name];
+        const data = FossilRecord.av_cell_counts[i];
+        let j = 0;
+        for (const name in data) {
+            const count = data[name];
             this.data[j].dataPoints.push({ x: t, y: count });
             j++;
         }
