@@ -1,41 +1,51 @@
 const Neighbors = require("./Grid/Neighbors");
 
-const Hyperparams = {
+const defaults = {
+    // Environment
+    foodDropProb: 0,
+    foodBlocksReproduction: true,
+
+    // Organism
+    lifespanMultiplier: 1000,
+    rotationEnabled: true,
+
+    // Mutation
+    useEvolutiveMutability: true,
+    globalMutability: 5,
+    addProb: 33,
+    changeProb: 33,
+    removeProb: 33,
+
+    // Cell: mouth
+    edibleNeighbors: Neighbors.adjacent,
+
+    // Cell: mover
+    cellWeight: 0.002,
+    moversCanProduce: false,
+
+    // Cell: producer
+    foodProdProb: 0.005,
+    growableNeighbors: Neighbors.adjacent,
+
+    // Cell: killer
+    killableNeighbors: Neighbors.adjacent,
+    instaKill: false,
+
+    // Cell: eye
+    lookRange: 20,
+    seeThroughSelf: false,
+};
+
+const HyperParams = {
+    ...defaults,
+
     setDefaults: function () {
-        this.lifespanMultiplier = 100;
-        this.foodProdProb = 5;
-        this.killableNeighbors = Neighbors.adjacent;
-        this.edibleNeighbors = Neighbors.adjacent;
-        this.growableNeighbors = Neighbors.adjacent;
-
-        this.useEvolutiveMutability = true;
-        this.globalMutability = 5;
-        this.addProb = 33;
-        this.changeProb = 33;
-        this.removeProb = 33;
-
-        this.rotationEnabled = true;
-
-        this.foodBlocksReproduction = true;
-        this.moversCanProduce = false;
-
-        this.instaKill = false;
-
-        this.lookRange = 20;
-        this.seeThroughSelf = false;
-
-        this.foodDropProb = 0;
-
-        this.cellWeight = 0.001;
+        Object.assign(this, defaults);
     },
 
     loadJsonObj(obj) {
-        for (const key in obj) {
-            this[key] = obj[key];
-        }
+        Object.assign(this, obj);
     },
 };
 
-Hyperparams.setDefaults();
-
-module.exports = Hyperparams;
+module.exports = HyperParams;

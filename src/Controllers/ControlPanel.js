@@ -24,7 +24,7 @@ class ControlPanel {
         this.headless_opacity = 1;
         this.opacity_change_rate = -0.8;
         this.paused = false;
-        this.setHyperparamDefaults();
+        this.loadHyperParams();
         LoadController.control_panel = this;
     }
 
@@ -364,7 +364,7 @@ class ControlPanel {
             reader.onload = (e) => {
                 const result = JSON.parse(e.target.result);
                 Hyperparams.loadJsonObj(result);
-                this.updateHyperparamUIValues();
+                this.loadHyperParams();
                 // have to clear the value so change() will be triggered if the same file is uploaded again
                 $("#upload-hyperparams")[0].value = "";
             };
@@ -374,10 +374,10 @@ class ControlPanel {
 
     setHyperparamDefaults() {
         Hyperparams.setDefaults();
-        this.updateHyperparamUIValues();
+        this.loadHyperParams();
     }
 
-    updateHyperparamUIValues() {
+    loadHyperParams() {
         $("#food-prod-prob").val(Hyperparams.foodProdProb);
         $("#lifespan-multiplier").val(Hyperparams.lifespanMultiplier);
         $("#rot-enabled").prop("checked", Hyperparams.rotationEnabled);
