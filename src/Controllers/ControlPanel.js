@@ -305,7 +305,7 @@ class ControlPanel {
             );
         });
 
-        $("#evolved-mutation").change(function () {
+        $("#evolutive-mutation").change(function () {
             if (this.checked) {
                 $(".global-mutation-in").css("display", "none");
                 $("#avg-mut").css("display", "block");
@@ -313,7 +313,7 @@ class ControlPanel {
                 $(".global-mutation-in").css("display", "block");
                 $("#avg-mut").css("display", "none");
             }
-            Hyperparams.useGlobalMutability = !this.checked;
+            Hyperparams.useEvolutiveMutability = this.checked;
         });
         $("#global-mutation").change(function () {
             Hyperparams.globalMutability = parseInt(
@@ -384,9 +384,9 @@ class ControlPanel {
         $("#lifespan-multiplier").val(Hyperparams.lifespanMultiplier);
         $("#rot-enabled").prop("checked", Hyperparams.rotationEnabled);
         $("#insta-kill").prop("checked", Hyperparams.instaKill);
-        $("#evolved-mutation").prop(
+        $("#evolutive-mutation").prop(
             "checked",
-            !Hyperparams.useGlobalMutability
+            Hyperparams.useEvolutiveMutability
         );
         $("#add-prob").val(Hyperparams.addProb);
         $("#change-prob").val(Hyperparams.changeProb);
@@ -399,11 +399,9 @@ class ControlPanel {
         $("#see-through-self").prop("checked", Hyperparams.seeThroughSelf);
         $("#global-mutation").val(Hyperparams.globalMutability);
 
-        if (!Hyperparams.useGlobalMutability) {
-            $(".global-mutation-in").css("display", "none");
+        if (Hyperparams.useEvolutiveMutability) {
             $("#avg-mut").css("display", "block");
         } else {
-            $(".global-mutation-in").css("display", "block");
             $("#avg-mut").css("display", "none");
         }
     }

@@ -22,7 +22,7 @@ class Organism {
         this.move_count = 0;
         this.move_range = 4;
         this.ignore_brain_for = 0;
-        this.mutability = 5;
+        this.mutability = Hyperparams.globalMutability;
         this.damage = 0;
         this.brain = new Brain(this);
         if (parent != null) {
@@ -87,12 +87,12 @@ class Organism {
     }
 
     mutate() {
-        this.mutability = Hyperparams.useGlobalMutability
-            ? Hyperparams.globalMutability
-            : Random.randomInt(
-                  this.mutability + 2,
-                  Math.max(1, this.mutability - 1)
-              );
+        if (Hyperparams.useEvolutiveMutability) {
+            this.mutability = Random.randomInt(
+                this.mutability + 2,
+                Math.max(1, this.mutability - 1)
+            );
+        }
         if (Random.randomChance(this.mutability, 2)) {
             // Higher chance of behavioral change
             this.mutateBehavior();

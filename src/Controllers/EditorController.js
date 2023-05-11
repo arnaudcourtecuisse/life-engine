@@ -175,10 +175,10 @@ class EditorController extends CanvasController {
         $("#move-range").text("Move Range: " + org.move_range);
         $("#mutation-rate").text("Mutation Rate: " + org.mutability);
 
-        if (Hyperparams.useGlobalMutability) {
-            $("#mutation-rate").css("display", "none");
-        } else {
+        if (Hyperparams.useEvolutiveMutability) {
             $("#mutation-rate").css("display", "block");
+        } else {
+            $("#mutation-rate").css("display", "none");
         }
 
         this.setMoveRangeVisibility();
@@ -199,10 +199,10 @@ class EditorController extends CanvasController {
         }
 
         $("#mutation-rate-edit").val(org.mutability);
-        if (Hyperparams.useGlobalMutability) {
-            $("#mutation-rate-cont").css("display", "none");
-        } else {
+        if (Hyperparams.useEvolutiveMutability) {
             $("#mutation-rate-cont").css("display", "block");
+        } else {
+            $("#mutation-rate-cont").css("display", "none");
         }
 
         if (this.setBrainPanelVisibility()) {

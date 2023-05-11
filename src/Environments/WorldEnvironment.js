@@ -90,9 +90,6 @@ class WorldEnvironment extends Environment {
 
     averageMutability() {
         if (this.organisms.length < 1) return 0;
-        if (Hyperparams.useGlobalMutability) {
-            return Hyperparams.globalMutability;
-        }
         return this.total_mutability / this.organisms.length;
     }
 
