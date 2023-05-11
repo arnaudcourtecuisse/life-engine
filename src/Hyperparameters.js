@@ -26,7 +26,7 @@ const Hyperparams = {
 
         this.foodDropProb = 0;
 
-        this.extraMoverFoodCost = 0;
+        this.cellWeight = 0.001;
     },
 
     loadJsonObj(obj) {

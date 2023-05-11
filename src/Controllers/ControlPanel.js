@@ -299,10 +299,8 @@ class ControlPanel {
         $("#food-drop-rate").change(function () {
             Hyperparams.foodDropProb = $("#food-drop-rate").val();
         });
-        $("#extra-mover-cost").change(function () {
-            Hyperparams.extraMoverFoodCost = parseInt(
-                $("#extra-mover-cost").val()
-            );
+        $("#cell-weight").change(function () {
+            Hyperparams.cellWeight = $("#cell-weight").val();
         });
 
         $("#evolutive-mutation").change(function () {
@@ -394,7 +392,7 @@ class ControlPanel {
         $("#movers-produce").prop("checked", Hyperparams.moversCanProduce);
         $("#food-blocks").prop("checked", Hyperparams.foodBlocksReproduction);
         $("#food-drop-rate").val(Hyperparams.foodDropProb);
-        $("#extra-mover-cost").val(Hyperparams.extraMoverFoodCost);
+        $("#cell-weight").val(Hyperparams.cellWeight);
         $("#look-range").val(Hyperparams.lookRange);
         $("#see-through-self").prop("checked", Hyperparams.seeThroughSelf);
         $("#global-mutation").val(Hyperparams.globalMutability);

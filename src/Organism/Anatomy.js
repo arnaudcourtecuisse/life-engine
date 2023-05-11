@@ -6,6 +6,8 @@ class Anatomy {
     constructor(owner) {
         this.owner = owner;
         this.birth_distance = 2;
+        this.move_cost = 0;
+        this.rotation_cost = 0;
         this.clear();
     }
 
@@ -22,6 +24,8 @@ class Anatomy {
     }
 
     #addCell(cell, c, r) {
+        this.move_cost += 1;
+        this.rotation_cost += c * c + r * r;
         const distance = 2 * (1 + Math.max(Math.abs(c), Math.abs(r)));
         if (distance > this.birth_distance) {
             this.birth_distance = distance;
@@ -69,6 +73,8 @@ class Anatomy {
         for (let i = 0; i < this.cells.length; i++) {
             const cell = this.cells[i];
             if (cell.loc_col == c && cell.loc_row == r) {
+                this.move_cost -= 1;
+                this.rotation_cost -= c * c + r * r;
                 this.cells.splice(i, 1);
                 delete this.grid[[c, r]];
                 break;
