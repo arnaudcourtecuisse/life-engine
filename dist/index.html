@@ -16,7 +16,7 @@
 		<div class='control-panel'>
 			<div id='speed-controller' class='control-set'>
 				<div class='vertical-buttons'>
-					<button class="reset-view" title="Reset View. Hotkey: A"><i class="fa fa-video-camera"></i></button>
+					<button id="reset-view" class="reset-view" title="Reset View. Hotkey: A"><i class="fa fa-video-camera"></i></button>
 					<button class="edit-mode-btn drag-view" id="drag-view" title="Drag View. Hotkey: S"><i class="fa fa-arrows"></i></button>
 					<button class="edit-mode-btn wall-drop" id="wall-drop" title="Drop/Remove Wall. Hotkey: D"><i class="fa fa-th"></i></button>
 					<button class="edit-mode-btn food-drop selected" id="food-drop" title="Drop/Remove Food. Hotkey: F"><i class="fa fa-cutlery"></i></button>
@@ -25,8 +25,8 @@
 				<img src="./img/title.png" alt="Life Engine">
 				<h3>Simulation Speed</h3>
 				<input id="slider" type="range" min="1" max="300" value="60">
-				<button class='pause-button' title="Play/Pause. Hotkey: Spacebar"><i class="fa fa-pause"></i></button>
-				<button class="headless" title="Toggle rendering. Hotkey: H"><i class="fa fa-eye-slash"></i></button>
+				<button id="pause-button" class='pause-button' title="Play/Pause. Hotkey: Spacebar"><i class="fa fa-pause"></i></button>
+				<button id="headless" class="headless" title="Toggle rendering. Hotkey: H"><i class="fa fa-eye-slash"></i></button>
 				<p id='fps'>Target FPS: 60</p>
 				<p id='fps-actual'></p>
 				<button id='reset-env' title='Restarts simulation with default organism.'>Reset</button>
@@ -151,6 +151,7 @@
 						<button id='reset-with-editor-org' title='Reset the environment with the organism in the editor'>Reset with Editor Organism</button>
 					</div>
 				</div>
+
 				<div id='world-controls' class='tab'>
 					<div class='left-half'>
 						<h3>Grid Size</h3>
@@ -193,6 +194,7 @@
 						<input type="checkbox" id="override-controls" checked>
 					</div>
 				</div>
+
 				<div id='hyperparameters' class='tab'>
 					<div class='left-half'>
 						<h2>Evolution Controls</h2>
