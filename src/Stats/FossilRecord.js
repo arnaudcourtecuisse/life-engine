@@ -172,7 +172,7 @@ const FossilRecord = {
             }
             total_org += s.population;
         }
-        if (total_org == 0) {
+        if (total_org === 0) {
             this.av_cell_counts.push(cell_counts);
             return;
         }

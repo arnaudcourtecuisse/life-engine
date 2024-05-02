@@ -2,25 +2,18 @@ const CanvasJS = require("../../vendor/canvasjs.min");
 const FossilRecord = require("../FossilRecord");
 
 class ChartController {
-    constructor(title, y_axis = "", note = "") {
+    constructor(title, logarithmic = false) {
         this.data = [];
         this.chart = new CanvasJS.Chart("chartContainer", {
             zoomEnabled: true,
             title: {
                 text: title,
             },
-            axisX: {
-                title: "Ticks",
-                minimum: 0,
-            },
-            axisY: {
-                title: y_axis,
-                minimum: 0,
-            },
+            axisX: {},
+            axisY: { logarithmic, includeZero: true },
             data: this.data,
         });
         this.chart.render();
-        $("#chart-note").text(note);
     }
 
     setData() {
@@ -28,9 +21,7 @@ class ChartController {
     }
 
     setMinimum() {
-        let min = 0;
-        if (this.data[0].dataPoints != []) min = this.data[0].dataPoints[0].x;
-        this.chart.options.axisX.minimum = min;
+        this.chart.options.axisX.minimum = this.data[0].dataPoints[0]?.x ?? 0;
     }
 
     addAllDataPoints() {

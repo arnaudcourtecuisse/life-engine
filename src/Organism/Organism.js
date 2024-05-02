@@ -196,12 +196,8 @@ class Organism {
     // assumes either c1==c2 or r1==r2, returns true if there is a clear path from point 1 to 2
     isStraightPath(c1, r1, c2, r2, parent) {
         if (c1 == c2) {
-            if (r1 > r2) {
-                const temp = r2;
-                r2 = r1;
-                r1 = temp;
-            }
-            for (let i = r1; i != r2; i++) {
+            [r1, r2] = [r1, r2].sort();
+            for (let i = r1; i < r2; i++) {
                 const cell = this.env.grid_map.cellAt(c1, i);
                 if (!this.isPassableCell(cell, parent)) {
                     return false;
@@ -209,12 +205,8 @@ class Organism {
             }
             return true;
         } else {
-            if (c1 > c2) {
-                const temp = c2;
-                c2 = c1;
-                c1 = temp;
-            }
-            for (let i = c1; i != c2; i++) {
+            [c1, c2] = [c1, c2].sort();
+            for (let i = c1; i < c2; i++) {
                 const cell = this.env.grid_map.cellAt(i, r1);
                 if (!this.isPassableCell(cell, parent)) {
                     return false;
