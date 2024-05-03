@@ -25,11 +25,12 @@ This is the second version of the [original evolution simulator](https://github.
 
 ### Npm build commands
 - Production mode (minified): `npm run build`
-- Watch mode (dev mode that auto-builds when you save a file): `npm run build:watch`
 - Dev mode (better error messages): `npm run build:dev`
+- Watch mode (dev mode that auto-builds when you save a file): `npm run build:watch`
 
 
 # How the Simulation Works
+
 ## The Environment
 The environment is a simple grid system made up of cells, which at every tick have a certain type. The environment is populated by organisms, which are structures of multiple cells.
 
