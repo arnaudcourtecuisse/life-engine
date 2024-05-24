@@ -15,7 +15,8 @@ module.exports = {
         const index = this.randomInt(array.length);
         return array[index];
     },
-    coinFlip() {
-        return this.random() < 0.5;
+
+    coinFlip(bias = 0.5) {
+        return this.random() < bias;
     },
 };

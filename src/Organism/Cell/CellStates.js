@@ -105,6 +105,16 @@ const CellStates = {
             this.armor,
             this.eye,
         ];
+        this.nonEmpty = [
+            this.food,
+            this.wall,
+            this.mouth,
+            this.producer,
+            this.mover,
+            this.killer,
+            this.armor,
+            this.eye,
+        ];
     },
     getRandomName: function () {
         return this.all[Math.floor(Math.random() * this.all.length)].name;

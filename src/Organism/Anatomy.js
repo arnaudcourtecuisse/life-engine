@@ -40,9 +40,6 @@ class Anatomy {
     }
 
     addRandomizedCell(state, c, r) {
-        if (state == CellStates.eye && !this.has_eyes) {
-            this.owner.brain.randomizeDecisions();
-        }
         const new_cell = BodyCellFactory.createRandom(this.owner, state, c, r);
         return this.#addCell(new_cell, c, r);
     }

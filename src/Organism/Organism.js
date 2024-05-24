@@ -4,6 +4,7 @@ const Hyperparams = require("../Hyperparameters");
 const Directions = require("./Directions");
 const Anatomy = require("./Anatomy");
 const Brain = require("./Perception/Brain");
+const Actions = require("./Perception/Actions");
 const FossilRecord = require("../Stats/FossilRecord");
 const SerializeHelper = require("../Utils/SerializeHelper");
 const Random = require("../Utils/Random");
@@ -23,10 +24,12 @@ class Organism {
         this.move_decision_interval = 3;
         this.mutability = Hyperparams.globalMutability;
         this.damage = 0;
-        this.brain = new Brain(this);
+
         if (parent != null) {
             this.inherit(parent);
         }
+        // Init brain after inheriting all body cells of parent
+        this.brain = new Brain(this, parent);
     }
 
     inherit(parent) {
@@ -121,23 +124,7 @@ class Organism {
     }
 
     mutateBehavior() {
-        const possibleMutations = [];
-
-        if (this.anatomy.has_eyes) {
-            possibleMutations.push(() => {
-                this.brain.mutate();
-            });
-        }
-        if (this.anatomy.is_mover) {
-            possibleMutations.push(() => {
-                if (this.move_decision_interval === 1)
-                    ++this.move_decision_interval;
-                else this.move_decision_interval += Random.coinFlip() ? -1 : 1;
-            });
-        }
-        if (possibleMutations.length > 0) {
-            Random.randomPick(possibleMutations)();
-        }
+        this.brain.mutate();
     }
 
     mutateBody() {
@@ -172,10 +159,11 @@ class Organism {
         return Hyperparams.cellWeight * this.anatomy.move_cost;
     }
 
-    attemptMove() {
-        if (this.energy < this.move_cost) return false;
-
-        const [dc, dr] = Directions.scalars[this.direction];
+    attemptMove(offset) {
+        if (!this.anatomy.is_mover || this.energy < this.move_cost) {
+            return false;
+        }
+        const [dc, dr] = offset;
         const new_c = this.c + dc;
         const new_r = this.r + dr;
 
@@ -305,21 +293,82 @@ class Organism {
             if (!this.living) return this.living;
         }
 
-        if (!this.anatomy.is_mover) return this.living;
+        // Retrieve sensory data from surroundings
+        let sensoryData = this.getSensoryData();
+        // Get action output levels from brain
+        let actionLevels = this.brain.update(sensoryData);
+        // Execute actions over their respective threshold
+        this.executeActions(actionLevels);
 
-        let moved = false;
-        if (this.move_ticks > this.move_decision_interval) {
-            this.move_ticks = 0;
-            const next_direction =
-                this.brain.pickDirection() ?? Directions.getRandomDirection();
-            this.direction = next_direction;
-            moved = this.attemptRotate(next_direction);
-        }
-        if (!moved) {
-            moved = this.attemptMove();
-        }
-        ++this.move_ticks;
         return this.living;
+    }
+
+    // Count sensor neurons from organism's cell types
+    // Used for configuring the brain's neural net
+    getNumSensors() {
+        let numSensors = 0;
+        for (var cell of this.anatomy.cells) {
+            numSensors += cell.getNumSensorNeurons();
+        }
+        return numSensors;
+    }
+
+    // Returns an array of scaled sensory values between 0.0 and 1.0 gathered from body cells
+    getSensoryData() {
+        var sensorValues = [];
+        for (var cell of this.anatomy.cells) {
+            if (cell.getNumSensorNeurons() > 0) {
+                sensorValues = sensorValues.concat(cell.getSensorValues());
+            }
+        }
+        return sensorValues;
+    }
+
+    executeActions(actionLevels) {
+        // ------------- Movement action neurons ---------------
+        // There are multiple action neurons for movement. Each type of movement neuron
+        // urges the individual to move in some specific direction. We sum up all the
+        // X and Y components of all the movement urges, then pass the X and Y sums through
+        // a transfer function (tanh()) to get a range -1.0..1.0. The absolute values of the
+        // X and Y values are passed through prob2bool() to convert to -1, 0, or 1, then
+        // multiplied by the component's signum. This results in the x and y components of
+        // a normalized movement offset. I.e., the probability of movement in either
+        // dimension is the absolute value of tanh of the action level X,Y components and
+        // the direction is the sign of the X, Y components. For example, for a particular
+        // action neuron:
+        //     X, Y == -5.9, +0.3 as raw action levels received here
+        //     X, Y == -0.999, +0.29 after passing raw values through tanh()
+        //     Xprob, Yprob == 99.9%, 29% probability of X and Y becoming 1 (or -1)
+        //     X, Y == -1, 0 after applying the sign and probability
+        //     The agent will then be moved West (an offset of -1, 0) if it's a legal move.
+
+        // moveX,moveY will be the accumulators that will hold the sum of all the
+        // urges to move along each axis. (+- floating values of arbitrary range)
+        let moveX = actionLevels[Actions.moveX];
+        let moveY = actionLevels[Actions.moveY];
+
+        let level = actionLevels[Actions.moveRandom];
+
+        let dir = Directions.getRandomScalar();
+        moveX += dir[0] * level;
+        moveY += dir[1] * level;
+
+        // Convert the accumulated X, Y sums to the range -1.0..1.0
+        moveX = Math.tanh(moveX);
+        moveY = Math.tanh(moveY);
+
+        // The probability of movement along each axis is the absolute value
+        let probX = Random.coinFlip(Math.abs(moveX)); // convert abs(level) to 0 or 1
+        let probY = Random.coinFlip(Math.abs(moveY)); // convert abs(level) to 0 or 1
+
+        // The direction of movement (if any) along each axis is the sign
+        let signumX = moveX < 0.0 ? -1 : 1;
+        let signumY = moveY < 0.0 ? -1 : 1;
+
+        // Generate a normalized movement offset, where each component is -1, 0, or 1
+        let offset = [probX * signumX, probY * signumY];
+        // Move there if it's a valid location
+        this.attemptMove(offset);
     }
 
     getRealCell(local_cell, c = this.c, r = this.r, rotation = this.rotation) {

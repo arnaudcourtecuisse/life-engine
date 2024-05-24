@@ -8,6 +8,8 @@ const defaults = {
     // Organism
     lifespanMultiplier: 1000,
     rotationEnabled: true,
+    moversCanRotate: true,
+    offspringRotate: true,
 
     // Mutation
     useEvolutiveMutability: true,
@@ -15,6 +17,11 @@ const defaults = {
     addProb: 33,
     changeProb: 33,
     removeProb: 33,
+    genomeMutationProb: 0.05,
+
+    // Brain
+    numGenes: 10,
+    numNeurons: 10,
 
     // Cell: mouth
     edibleNeighbors: Neighbors.adjacent,

@@ -1,95 +1,57 @@
-const Hyperparams = require("../../Hyperparameters");
-const Directions = require("../Directions");
-const CellStates = require("../Cell/CellStates");
-
-const Decision = {
-    neutral: 0,
-    retreat: 1,
-    chase: 2,
-    getRandom: function () {
-        return Math.floor(Math.random() * 3);
-    },
-    getRandomNonNeutral: function () {
-        return Math.floor(Math.random() * 2) + 1;
-    },
-};
+const HyperParams = require("../../Hyperparameters");
+const Genome = require("./Genome");
+const NeuralNet = require("./NeuralNet");
 
 class Brain {
-    constructor(owner) {
+    constructor(owner, parent) {
         this.owner = owner;
-        this.observations = [];
-
-        // corresponds to CellTypes
-        this.decisions = {};
-        for (const cell of CellStates.all) {
-            this.decisions[cell.name] = Decision.neutral;
-        }
-        this.decisions[CellStates.food.name] = Decision.chase;
-        this.decisions[CellStates.killer.name] = Decision.retreat;
+        let genes = parent != null ? parent.brain.genome.genes : null;
+        this.genome = new Genome(genes);
+        this.neuralNet = new NeuralNet(this.genome, owner.getNumSensors());
+        this.observation = null;
     }
 
-    copy(brain) {
-        for (const dec in brain.decisions) {
-            this.decisions[dec] = brain.decisions[dec];
-        }
+    /* Updates neural net outputs to reflect current actions based on senses */
+    /* Returns an array of the action level for each output neuron */
+    update(sensoryData) {
+        return this.neuralNet.feedForward(sensoryData);
     }
 
-    randomizeDecisions(randomize_all = false) {
-        // randomize the non obvious decisions
-        if (randomize_all) {
-            this.decisions[CellStates.food.name] = Decision.getRandom();
-            this.decisions[CellStates.killer.name] = Decision.getRandom();
-        }
-        this.decisions[CellStates.mouth.name] = Decision.getRandom();
-        this.decisions[CellStates.producer.name] = Decision.getRandom();
-        this.decisions[CellStates.mover.name] = Decision.getRandom();
-        this.decisions[CellStates.armor.name] = Decision.getRandom();
-        this.decisions[CellStates.eye.name] = Decision.getRandom();
-    }
-
-    observe(observation) {
-        this.observations.push(observation);
-    }
-
-    pickDirection() {
-        let decision = Decision.neutral;
-        let bestInterest = 0;
-        let move_direction = null;
-        for (const tick in this.observations) {
-            const obs = this.observations[tick];
-            if (obs.cell == null || obs.cell.owner == this.owner) {
-                continue;
-            }
-            let interest = tick + (Hyperparams.lookRange - obs.distance);
-            const signalType = this.decisions[obs.cell.state.name];
-            if (signalType !== Decision.neutral) {
-                interest *= 2;
-            }
-            if (interest > bestInterest) {
-                decision = signalType;
-                move_direction = obs.direction;
-                bestInterest = interest;
-            }
-        }
-        this.observations = [];
-        if (decision == Decision.chase) {
-            return move_direction;
-        } else if (decision == Decision.retreat) {
-            return Directions.getOppositeDirection(move_direction);
-        }
-        return null;
-    }
-
+    // Performs bit flips to genes conditionally from the mutation probability
+    // Returns true if any genes were mutated
     mutate() {
-        this.decisions[CellStates.getRandomName()] = Decision.getRandom();
-        this.decisions[CellStates.empty.name] = Decision.neutral; // if the empty cell has a decision it gets weird
+        for (var gene of this.genome.genes) {
+            if (Math.random() < HyperParams.genomeMutationProb) {
+                this.randomBitFlip(gene);
+            }
+        }
+    }
+
+    // This applies a point mutation at a random bit in a gene.
+    randomBitFlip(gene) {
+        let bitMask = 1 << Math.floor(Math.random() * 16);
+        let chance = Math.random(); // 0..1
+        if (chance < 0.2) {
+            // sourceType
+            gene.sourceType ^= 1;
+        } else if (chance < 0.4) {
+            // sinkType
+            gene.sinkType ^= 1;
+        } else if (chance < 0.6) {
+            // sourceNum
+            gene.sourceNum ^= bitMask;
+        } else if (chance < 0.8) {
+            // sinkNum
+            gene.sinkNum ^= bitMask;
+        } else {
+            // weight
+            gene.weight ^= bitMask;
+        }
     }
 
     serialize() {
-        return { decisions: this.decisions };
+        return { genes: this.genome.genes };
     }
 }
-
-Brain.Decision = Decision;
 
 module.exports = Brain;
