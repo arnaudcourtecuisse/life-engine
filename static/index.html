@@ -36,15 +36,15 @@
 			<div id='tab-container' class='control-set'>
 
 				<div class="tabnav">
-					<p class='tabnav-item open-tab' id='about'>About</p>
-					<p class='tabnav-item' id='editor'>Editor</p>
-					<p class='tabnav-item' id='world-controls'>World Controls</p>
-					<p class='tabnav-item' id='hyperparameters'>Evolution Controls</p>
-					<p class='tabnav-item' id='stats'>Statistics</p>
-					<button id="minimize" title="Minimze Control Panel."><i class="fa fa-minus-square"></i></button>
+					<p class='tabnav-item open-tab' id='tabnav-item-about'>About</p>
+					<p class='tabnav-item' id='tabnav-item-editor'>Editor</p>
+					<p class='tabnav-item' id='tabnav-item-world-controls'>World Controls</p>
+					<p class='tabnav-item' id='tabnav-item-hyperparameters'>Evolution Controls</p>
+					<p class='tabnav-item' id='tabnav-item-stats'>Statistics</p>
+					<button id="minimize" title="Minimize Control Panel."><i class="fa fa-minus-square"></i></button>
 				</div>
 
-				<div id='about' class='tab'>
+				<div id='tab-about' class='tab'>
 					<h3>The Life Engine</h3>
 					<p>The Life Engine is a virtual ecosystem that allows organisms to reproduce, compete, and evolve.</p>
 					<p>Each organism is made up of different colored cells. Hover over each color to learn what it does.</p>
@@ -66,7 +66,7 @@
 					</div>
 				</div>
 
-				<div id='editor' class='tab'>
+				<div id='tab-editor' class='tab'>
 					<div class='left-half' id='editor-panel'>
 						<div class='editor-buttons'>
 							<button class="edit-mode-btn select" id="select" title="Select organism from world. Hotkey: Z"><i class="fa-regular fa-hand-pointer"></i></button>
@@ -100,7 +100,7 @@
 						<div id='organism-details' style="display:none;">
 							<h3>Organism Details</h3>
 							<p class='cell-count'>Cell count: </p>
-							<p id='move-range'>Move Range: </p>
+							<p id='move-decision-interval'>Move Range: </p>
 							<p id='mutation-rate'>Mutation Rate: </p>
 							<br>
 
@@ -114,9 +114,9 @@
 						<div id='edit-organism-details' style="display:none;">
 							<h3>Edit Organism</h3>
 							<p class='cell-count'>Cell count: </p>
-							<div id='move-range-cont'>
-								<label for="move-range-edit" title='The number of cells to move before randomly changing direction. Overriden by brain decisions.'>Move Range:</label>
-								<input type="number" id="move-range-edit" min="1" max="100" value=3 step="1">
+							<div id='move-decision-interval-cont'>
+								<label for="move-decision-interval-edit" title='The number of cells to move before randomly changing direction. Overriden by brain decisions.'>Move Range:</label>
+								<input type="number" id="move-decision-interval-edit" min="1" max="100" value=3 step="1">
 							</div>
 							<div id='mutation-rate-cont'>
 								<label for="mutation-rate-edit" title='Probability that offspring of this organism will mutate'>Mutation Rate:</label>
@@ -152,7 +152,7 @@
 					</div>
 				</div>
 
-				<div id='world-controls' class='tab'>
+				<div id='tab-world-controls' class='tab'>
 					<div class='left-half'>
 						<h3>Grid Size</h3>
 						<label for="cell-size">Cell Size:</label>
@@ -195,7 +195,7 @@
 					</div>
 				</div>
 
-				<div id='hyperparameters' class='tab'>
+				<div id='tab-hyperparameters' class='tab'>
 					<div class='left-half'>
 						<h2>Evolution Controls</h2>
 						<label for="food-prod-prob" title='The probability that a producer cell will produce food each tick.'>Probability of producing food:</label>
@@ -249,7 +249,8 @@
 						<input id="upload-hyperparams" style="display: none;" type="file">
 					</div>
 				</div>
-				<div id='stats' class='tab'>
+
+				<div id='tab-stats' class='tab'>
 					<div class='left-half'>
 						<h2>Statistics</h2>
 						<p id='org-count'>Total Population: </p>
@@ -296,7 +297,7 @@
 			<button class="headless" title="Toggle rendering. Hotkey: H"><i class="fa fa-eye-slash"></i></button>
 			<button class='pause-button' title="Play/Pause. Hotkey: Spacebar"><i class="fa fa-pause"></i></button>
 		</div>
-		<div id="headless-notification">
+		<div id="headless-notification" class="blink">
 			<i class="fa fa-eye-slash" ></i>
 		</div>
 		<div id='maximize-hot-control' class='hot-controls'>

@@ -27,9 +27,7 @@ class EyeCell extends BodyCell {
     }
 
     getAbsoluteDirection() {
-        let dir = this.org.rotation + this.direction;
-        if (dir > 3) dir -= 4;
-        return dir;
+        return (this.org.rotation + this.direction) % 4;
     }
 
     performFunction() {
