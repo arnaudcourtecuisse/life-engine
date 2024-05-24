@@ -20,7 +20,7 @@ class Organism {
         this.direction = Directions.down; // direction of movement
         this.rotation = Directions.up; // direction of rotation
         this.move_ticks = 0;
-        this.move_range = 3;
+        this.move_decision_interval = 3;
         this.mutability = Hyperparams.globalMutability;
         this.damage = 0;
         this.brain = new Brain(this);
@@ -30,7 +30,7 @@ class Organism {
     }
 
     inherit(parent) {
-        this.move_range = parent.move_range;
+        this.move_decision_interval = parent.move_decision_interval;
         this.mutability = parent.mutability;
         this.species = parent.species;
         for (const c of parent.anatomy.cells) {
@@ -81,6 +81,27 @@ class Organism {
             org.updateGrid();
             FossilRecord.registerOrganismSpecies(org, this.env.total_ticks);
             this.energy -= this.reproduction_cost;
+        } else {
+            this.abortReproduction(direction_c, direction_r);
+        }
+    }
+
+    abortReproduction(direction_c, direction_r) {
+        let c = this.c + direction_c;
+        let r = this.r + direction_r;
+        let cell = this.env.grid_map.cellAt(c, r);
+        while (
+            cell !== null &&
+            (cell.owner === this || cell.state === CellStates.food)
+        ) {
+            c += direction_c;
+            r += direction_r;
+            cell = this.env.grid_map.cellAt(c, r);
+        }
+        if (cell !== null && cell.state === CellStates.empty) {
+            // Drop dead egg
+            this.env.changeCell(c, r, CellStates.food, null);
+            this.energy -= 1;
         }
     }
 
@@ -109,8 +130,9 @@ class Organism {
         }
         if (this.anatomy.is_mover) {
             possibleMutations.push(() => {
-                if (this.move_range === 1) ++this.move_range;
-                else this.move_range += Random.coinFlip() ? -1 : 1;
+                if (this.move_decision_interval === 1)
+                    ++this.move_decision_interval;
+                else this.move_decision_interval += Random.coinFlip() ? -1 : 1;
             });
         }
         if (possibleMutations.length > 0) {
@@ -227,8 +249,8 @@ class Organism {
     }
 
     isClear(col, row, rotation = this.rotation) {
-        for (const loccell of this.anatomy.cells) {
-            const cell = this.getRealCell(loccell, col, row, rotation);
+        for (const localCell of this.anatomy.cells) {
+            const cell = this.getRealCell(localCell, col, row, rotation);
             if (cell == null) {
                 return false;
             }
@@ -286,7 +308,7 @@ class Organism {
         if (!this.anatomy.is_mover) return this.living;
 
         let moved = false;
-        if (this.move_ticks > this.move_range) {
+        if (this.move_ticks > this.move_decision_interval) {
             this.move_ticks = 0;
             const next_direction =
                 this.brain.pickDirection() ?? Directions.getRandomDirection();

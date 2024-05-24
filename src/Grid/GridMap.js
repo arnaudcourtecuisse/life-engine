@@ -27,11 +27,11 @@ class GridMap {
         }
     }
 
-    fillGrid(state, ignore_walls = false) {
+    resetGrid(ignore_walls = false) {
         for (const col of this.grid) {
             for (const cell of col) {
                 if (ignore_walls && cell.state === CellStates.wall) continue;
-                cell.setType(state);
+                cell.setType(CellStates.empty);
                 cell.owner = null;
                 cell.cell_owner = null;
             }
