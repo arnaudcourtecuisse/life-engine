@@ -1,5 +1,6 @@
 const PopulationChart = require("./Charts/PopulationChart");
 const SpeciesChart = require("./Charts/SpeciesChart");
+const BiodiversityChart = require("./Charts/BiodiversityChart");
 const MutationChart = require("./Charts/MutationChart");
 const CellsChart = require("./Charts/CellsChart");
 const FossilRecord = require("./FossilRecord");
@@ -7,6 +8,7 @@ const FossilRecord = require("./FossilRecord");
 const ChartSelections = [
     PopulationChart,
     SpeciesChart,
+    BiodiversityChart,
     CellsChart,
     MutationChart,
 ];

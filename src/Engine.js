@@ -27,13 +27,14 @@ class Engine {
         this.running = false;
     }
 
-    start(fps = 60) {
-        if (fps <= 0) fps = 1;
-        this.fps = fps;
+    start(fps) {
+        if (this.running) return;
+
+        this.fps = Math.max(1, Math.min(fps, 1000));
         this.sim_loop = setInterval(() => {
             this.updateSimDeltaTime();
             this.environmentUpdate();
-        }, 1000 / fps);
+        }, 1000 / this.fps);
         this.running = true;
         if (this.fps >= min_render_speed) {
             if (this.ui_loop != null) {
@@ -44,6 +45,8 @@ class Engine {
     }
 
     stop() {
+        if (!this.running) return;
+
         clearInterval(this.sim_loop);
         this.running = false;
         this.setUiLoop();

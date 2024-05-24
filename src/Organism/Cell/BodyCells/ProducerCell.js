@@ -1,6 +1,7 @@
 const CellStates = require("../CellStates");
 const BodyCell = require("./BodyCell");
 const Hyperparams = require("../../../Hyperparameters");
+const Random = require("../../../Utils/Random");
 
 class ProducerCell extends BodyCell {
     constructor(org, loc_col, loc_row) {
@@ -10,30 +11,18 @@ class ProducerCell extends BodyCell {
 
     performFunction() {
         if (this.org.anatomy.is_mover && !Hyperparams.moversCanProduce) return;
+        const prob = Hyperparams.foodProdProb * 100;
+        if (!Random.randomChance(prob)) return;
+
         const env = this.org.env;
-        const prob = Hyperparams.foodProdProb;
-        const real_c = this.getRealCol();
-        const real_r = this.getRealRow();
-        if (Math.random() * 100 <= prob) {
-            const loc =
-                Hyperparams.growableNeighbors[
-                    Math.floor(
-                        Math.random() * Hyperparams.growableNeighbors.length
-                    )
-                ];
-            const loc_c = loc[0];
-            const loc_r = loc[1];
-            const cell = env.grid_map.cellAt(real_c + loc_c, real_r + loc_r);
-            if (cell != null && cell.state == CellStates.empty) {
-                env.changeCell(
-                    real_c + loc_c,
-                    real_r + loc_r,
-                    CellStates.food,
-                    null
-                );
-                return;
-            }
-        }
+        const cell_c = this.getRealCol();
+        const cell_r = this.getRealRow();
+        const [c, r] = Random.randomPick(Hyperparams.growableNeighbors);
+        const target = env.grid_map.cellAt(cell_c + c, cell_r + r);
+
+        if (target === null || target.state !== CellStates.empty) return;
+
+        env.changeCell(cell_c + c, cell_r + r, CellStates.food, null);
     }
 }
 

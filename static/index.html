@@ -16,7 +16,7 @@
 		<div class='control-panel'>
 			<div id='speed-controller' class='control-set'>
 				<div class='vertical-buttons'>
-					<button class="reset-view" title="Reset View. Hotkey: A"><i class="fa fa-video-camera"></i></button>
+					<button id="reset-view" class="reset-view" title="Reset View. Hotkey: A"><i class="fa fa-video-camera"></i></button>
 					<button class="edit-mode-btn drag-view" id="drag-view" title="Drag View. Hotkey: S"><i class="fa fa-arrows"></i></button>
 					<button class="edit-mode-btn wall-drop" id="wall-drop" title="Drop/Remove Wall. Hotkey: D"><i class="fa fa-th"></i></button>
 					<button class="edit-mode-btn food-drop selected" id="food-drop" title="Drop/Remove Food. Hotkey: F"><i class="fa fa-cutlery"></i></button>
@@ -25,8 +25,8 @@
 				<img src="./img/title.png" alt="Life Engine">
 				<h3>Simulation Speed</h3>
 				<input id="slider" type="range" min="1" max="300" value="60">
-				<button class='pause-button' title="Play/Pause. Hotkey: Spacebar"><i class="fa fa-pause"></i></button>
-				<button class="headless" title="Toggle rendering. Hotkey: H"><i class="fa fa-eye-slash"></i></button>
+				<button id="pause-button" class='pause-button' title="Play/Pause. Hotkey: Spacebar"><i class="fa fa-pause"></i></button>
+				<button id="headless" class="headless" title="Toggle rendering. Hotkey: H"><i class="fa fa-eye-slash"></i></button>
 				<p id='fps'>Target FPS: 60</p>
 				<p id='fps-actual'></p>
 				<button id='reset-env' title='Restarts simulation with default organism.'>Reset</button>
@@ -36,15 +36,15 @@
 			<div id='tab-container' class='control-set'>
 
 				<div class="tabnav">
-					<p class='tabnav-item open-tab' id='about'>About</p>
-					<p class='tabnav-item' id='editor'>Editor</p>
-					<p class='tabnav-item' id='world-controls'>World Controls</p>
-					<p class='tabnav-item' id='hyperparameters'>Evolution Controls</p>
-					<p class='tabnav-item' id='stats'>Statistics</p>
-					<button id="minimize" title="Minimze Control Panel."><i class="fa fa-minus-square"></i></button>
+					<p class='tabnav-item open-tab' id='tabnav-item-about'>About</p>
+					<p class='tabnav-item' id='tabnav-item-editor'>Editor</p>
+					<p class='tabnav-item' id='tabnav-item-world-controls'>World Controls</p>
+					<p class='tabnav-item' id='tabnav-item-hyperparameters'>Evolution Controls</p>
+					<p class='tabnav-item' id='tabnav-item-stats'>Statistics</p>
+					<button id="minimize" title="Minimize Control Panel."><i class="fa fa-minus-square"></i></button>
 				</div>
 
-				<div id='about' class='tab'>
+				<div id='tab-about' class='tab'>
 					<h3>The Life Engine</h3>
 					<p>The Life Engine is a virtual ecosystem that allows organisms to reproduce, compete, and evolve.</p>
 					<p>Each organism is made up of different colored cells. Hover over each color to learn what it does.</p>
@@ -66,7 +66,7 @@
 					</div>
 				</div>
 
-				<div id='editor' class='tab'>
+				<div id='tab-editor' class='tab'>
 					<div class='left-half' id='editor-panel'>
 						<div class='editor-buttons'>
 							<button class="edit-mode-btn select" id="select" title="Select organism from world. Hotkey: Z"><i class="fa-regular fa-hand-pointer"></i></button>
@@ -100,7 +100,7 @@
 						<div id='organism-details' style="display:none;">
 							<h3>Organism Details</h3>
 							<p class='cell-count'>Cell count: </p>
-							<p id='move-range'>Move Range: </p>
+							<p id='move-decision-interval'>Move Range: </p>
 							<p id='mutation-rate'>Mutation Rate: </p>
 							<br>
 
@@ -114,9 +114,9 @@
 						<div id='edit-organism-details' style="display:none;">
 							<h3>Edit Organism</h3>
 							<p class='cell-count'>Cell count: </p>
-							<div id='move-range-cont'>
-								<label for="move-range-edit" title='The number of cells to move before randomly changing direction. Overriden by brain decisions.'>Move Range:</label>
-								<input type="number" id="move-range-edit" min="1" max="100" value=3 step="1">
+							<div id='move-decision-interval-cont'>
+								<label for="move-decision-interval-edit" title='The number of cells to move before randomly changing direction. Overriden by brain decisions.'>Move Range:</label>
+								<input type="number" id="move-decision-interval-edit" min="1" max="100" value=3 step="1">
 							</div>
 							<div id='mutation-rate-cont'>
 								<label for="mutation-rate-edit" title='Probability that offspring of this organism will mutate'>Mutation Rate:</label>
@@ -151,7 +151,8 @@
 						<button id='reset-with-editor-org' title='Reset the environment with the organism in the editor'>Reset with Editor Organism</button>
 					</div>
 				</div>
-				<div id='world-controls' class='tab'>
+
+				<div id='tab-world-controls' class='tab'>
 					<div class='left-half'>
 						<h3>Grid Size</h3>
 						<label for="cell-size">Cell Size:</label>
@@ -193,55 +194,54 @@
 						<input type="checkbox" id="override-controls" checked>
 					</div>
 				</div>
-				<div id='hyperparameters' class='tab'>
+
+				<div id='tab-hyperparameters' class='tab'>
 					<div class='left-half'>
 						<h2>Evolution Controls</h2>
 						<label for="food-prod-prob" title='The probability that a producer cell will produce food each tick.'>Probability of producing food:</label>
-						<input type="number" id="food-prod-prob" min=".001" max="100" value=4 step="1">
+						<input type="number" id="food-prod-prob" min="0" max="1" step="0.001">
 						<br>
 						<label for="lifespan-multiplier" title='An organism lives for this many ticks per cell in its body.'>Lifespan multiplier:</label>
-						<input type="number" id="lifespan-multiplier" min="1" max="10000" value=100 step="1">
+						<input type="number" id="lifespan-multiplier" min="1" max="10000" step="1">
 						<br>
 						<label for="rot-enabled" title='Organisms rotate when born and while moving.'>Rotation Enabled</label>
-						<input type="checkbox" id="rot-enabled" checked>
+						<input type="checkbox" id="rot-enabled">
 						<br>
 						<label for="insta-kill" title='When on, killer cells immediatly kill organisms they touch. When off, organisms have as much health as they have cells and only take 1 damage from killer cells.'>One touch kill</label>
 						<input type="checkbox" id="insta-kill">
 						<br>
 						<label for="look-range" title='How far an eye cell can see (in number of cells)'>Look range:</label>
-						<input type="number" id="look-range" min="1" max="50" value=20 step="1">
+						<input type="number" id="look-range" min="1" max="50" step="1">
 						<br>
 						<label for="see-through-self" title='Allows eyes to see through an organisms own cells'>See through self:</label>
 						<input type="checkbox" id="see-through-self">
 						<br>
 						<label for="food-drop-rate" title='Rate at which food is automatically generated and dropped in the world'>Auto food drop rate:</label>
-						<input type="number" id="food-drop-rate" value=0 max="1000">
+						<input type="number" id="food-drop-rate">
 						<br>
-						<label for="extra-mover-cost" title='Additional food cost for movers to reproduce'>Extra mover reproduction cost:</label>
-						<input type="number" id="extra-mover-cost" value=0 max="1000" step="1">
-
-
+						<label for="cell-weight" title='Cell weight determines the energy cost of moving'>Cell weight:</label>
+						<input type="number" id="cell-weight" min=0 step="0.001">
 					</div>
 					<div class='right-half'>
 						<button id='reset-rules'>Reset all controls</button>
 						<h4>Mutation Rate</h4>
-						<label for="evolved-mutation" title='When on, each organism has its own mutation rate that can increase or decrease. When off, all organisms have the same mutation rate.'>Use evolved mutation rate</label>
-						<input type="checkbox" id="evolved-mutation" checked> </br>
+						<label for="evolutive-mutation" title='When on, each organism has its own mutation rate that can increase or decrease. When off, all organisms have the same mutation rate.'>Use evolved mutation rate</label>
+						<input type="checkbox" id="evolutive-mutation"> </br>
 						<label class="global-mutation-in" for="global-mutation">Global mutation rate: </label>
-						<input class="global-mutation-in" type="number" id="global-mutation" min="0" max="100" value=5 step="1">
+						<input class="global-mutation-in" type="number" id="global-mutation" min="0" max="100" step="1">
 						<h4 title='When an organism mutates, it can choose from one of the following mutation types.'>Mutation Type Probabilities</h4>
 						<label for="add-prob" title='A new cell will stem from an existing one'>Add Cell:</label>
-						<input class="mut-prob" type="number" id="add-prob" min="0" max="100" value=33>
+						<input class="mut-prob" type="number" id="add-prob" min="0" max="100">
 						<label for="change-prob" title='A currently existing cell will change its color.'>Change Cell:</label>
-						<input class="mut-prob" type="number" id="change-prob" min="0" max="100" value=33>
+						<input class="mut-prob" type="number" id="change-prob" min="0" max="100">
 						<label for="remove-prob" title='An existing cell will be removed.'>Remove Cell:</label>
-						<input class="mut-prob" type="number" id="remove-prob" min="0" max="100" value=33>
+						<input class="mut-prob" type="number" id="remove-prob" min="0" max="100">
 						<br/>
 						<label for="movers-produce" title='When on, movers can produce food from producer cells. When off, producer cells are disabled on mover organisms.'>Movers can produce food</label>
 						<input type="checkbox" id="movers-produce">
 						<br/>
 						<label for="food-blocks" title='When on, reproduction will fail if offspring intersect with food. When off, offspring will remove blocking food.'>Food blocks reproduction</label>
-						<input type="checkbox" id="food-blocks" checked>
+						<input type="checkbox" id="food-blocks">
 						<br>
 						<button id='save-controls' title="Save all Evolution Controls in a .json file">Save & Download</button>
 						<button id='load-controls' title="Load saved Evolution Controls with a .json file">Load</button>
@@ -249,7 +249,8 @@
 						<input id="upload-hyperparams" style="display: none;" type="file">
 					</div>
 				</div>
-				<div id='stats' class='tab'>
+
+				<div id='tab-stats' class='tab'>
 					<div class='left-half'>
 						<h2>Statistics</h2>
 						<p id='org-count'>Total Population: </p>
@@ -260,10 +261,10 @@
 						<select name="chart-option" id="chart-option">
 							<option value="population">Population</option>
 							<option value="species">Species</option>
-							<option value="mut-rate">Organism Structure</option>
+							<option value="biodiversity">Biodiversity</option>
+							<option value="org-struct">Organism Structure</option>
 							<option value="mut-rate">Mutation Rate</option>
 						</select>
-						<p id='chart-note'></p>
 					</div>
 					<div class='right-half'>
 						<div id="chartContainer"></div>
@@ -296,7 +297,7 @@
 			<button class="headless" title="Toggle rendering. Hotkey: H"><i class="fa fa-eye-slash"></i></button>
 			<button class='pause-button' title="Play/Pause. Hotkey: Spacebar"><i class="fa fa-pause"></i></button>
 		</div>
-		<div id="headless-notification">
+		<div id="headless-notification" class="blink">
 			<i class="fa fa-eye-slash" ></i>
 		</div>
 		<div id='maximize-hot-control' class='hot-controls'>

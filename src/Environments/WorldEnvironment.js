@@ -90,9 +90,6 @@ class WorldEnvironment extends Environment {
 
     averageMutability() {
         if (this.organisms.length < 1) return 0;
-        if (Hyperparams.useGlobalMutability) {
-            return Hyperparams.globalMutability;
-        }
         return this.total_mutability / this.organisms.length;
     }
 
@@ -156,10 +153,7 @@ class WorldEnvironment extends Environment {
             return false;
 
         this.organisms = [];
-        this.grid_map.fillGrid(
-            CellStates.empty,
-            !WorldConfig.clear_walls_on_reset
-        );
+        this.grid_map.resetGrid(!WorldConfig.clear_walls_on_reset);
         this.renderer.renderFullGrid(this.grid_map.grid);
         this.total_mutability = 0;
         this.total_ticks = 0;

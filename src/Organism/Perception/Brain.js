@@ -51,31 +51,33 @@ class Brain {
         this.observations.push(observation);
     }
 
-    decide() {
+    pickDirection() {
         let decision = Decision.neutral;
-        let closest = Hyperparams.lookRange + 1;
-        let move_direction = 0;
-        for (const obs of this.observations) {
+        let bestInterest = 0;
+        let move_direction = null;
+        for (const tick in this.observations) {
+            const obs = this.observations[tick];
             if (obs.cell == null || obs.cell.owner == this.owner) {
                 continue;
             }
-            if (obs.distance < closest) {
-                decision = this.decisions[obs.cell.state.name];
+            let interest = tick + (Hyperparams.lookRange - obs.distance);
+            const signalType = this.decisions[obs.cell.state.name];
+            if (signalType !== Decision.neutral) {
+                interest *= 2;
+            }
+            if (interest > bestInterest) {
+                decision = signalType;
                 move_direction = obs.direction;
-                closest = obs.distance;
+                bestInterest = interest;
             }
         }
         this.observations = [];
         if (decision == Decision.chase) {
-            this.owner.changeDirection(move_direction);
-            return true;
+            return move_direction;
         } else if (decision == Decision.retreat) {
-            this.owner.changeDirection(
-                Directions.getOppositeDirection(move_direction)
-            );
-            return true;
+            return Directions.getOppositeDirection(move_direction);
         }
-        return false;
+        return null;
     }
 
     mutate() {

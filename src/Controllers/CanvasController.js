@@ -6,9 +6,9 @@ class CanvasController {
         this.mouse_y;
         this.mouse_c;
         this.mouse_r;
-        this.left_click = false;
-        this.middle_click = false;
-        this.right_click = false;
+
+        this.active_button = null;
+
         this.cur_cell = null;
         this.cur_org = null;
         this.highlight_org = true;
@@ -25,29 +25,24 @@ class CanvasController {
             this.mouseMove();
         });
 
-        this.canvas.addEventListener(
-            "mouseup",
-            function (evt) {
-                evt.preventDefault();
-                this.updateMouseLocation(evt.offsetX, evt.offsetY);
-                this.mouseUp();
-                if (evt.button == 0) this.left_click = false;
-                if (evt.button == 1) this.middle_click = false;
-                if (evt.button == 2) this.right_click = false;
-            }.bind(this)
-        );
+        const buttonIds = ["left", "middle", "right"];
 
-        this.canvas.addEventListener(
-            "mousedown",
-            function (evt) {
-                evt.preventDefault();
-                this.updateMouseLocation(evt.offsetX, evt.offsetY);
-                if (evt.button == 0) this.left_click = true;
-                if (evt.button == 1) this.middle_click = true;
-                if (evt.button == 2) this.right_click = true;
-                this.mouseDown();
-            }.bind(this)
-        );
+        this.canvas.addEventListener("mouseup", (evt) => {
+            evt.preventDefault();
+            this.updateMouseLocation(evt.offsetX, evt.offsetY);
+            this.mouseUp();
+            const button = buttonIds[evt.button];
+            if (this.active_button === button) {
+                this.active_button = null;
+            }
+        });
+
+        this.canvas.addEventListener("mousedown", (evt) => {
+            evt.preventDefault();
+            this.updateMouseLocation(evt.offsetX, evt.offsetY);
+            this.active_button = buttonIds[evt.button];
+            this.mouseDown();
+        });
 
         this.canvas.addEventListener("contextmenu", function (evt) {
             evt.preventDefault();
@@ -56,9 +51,7 @@ class CanvasController {
         this.canvas.addEventListener(
             "mouseleave",
             function () {
-                this.left_click = false;
-                this.middle_click = false;
-                this.right_click = false;
+                this.active_button = null;
                 this.env.renderer.clearAllHighlights(true);
             }.bind(this)
         );
@@ -66,9 +59,13 @@ class CanvasController {
         this.canvas.addEventListener(
             "mouseenter",
             function (evt) {
-                this.left_click = !!(evt.buttons & 1);
-                this.right_click = !!(evt.buttons & 2);
-                this.middle_click = !!(evt.buttons & 4);
+                if ((evt.buttons & 1) !== 0) {
+                    this.active_button = "left";
+                } else if ((evt.buttons & 2) !== 0) {
+                    this.active_button = "right";
+                } else if ((evt.buttons & 4) !== 0) {
+                    this.active_button = "middle";
+                }
 
                 this.updateMouseLocation(evt.offsetX, evt.offsetY);
                 this.start_x = this.mouse_x;

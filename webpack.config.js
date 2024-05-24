@@ -1,15 +1,17 @@
-const path = require('path');
-const webpack = require("webpack");
+const path = require("path");
+const { ProvidePlugin } = require("webpack");
+const CopyWebpackPlugin = require("copy-webpack-plugin");
 
 module.exports = {
-    entry: './src/index.js',
+    entry: "./build/index.js",
     output: {
-        filename: 'bundle.js',
-        path: path.resolve(__dirname, 'dist/js/'),
+        filename: "js/bundle.js",
+        path: path.resolve(__dirname, "dist"),
     },
     plugins: [
-        new webpack.ProvidePlugin({
-            $: "jquery",
-        })
-    ]
+        new ProvidePlugin({ $: "jquery" }),
+        new CopyWebpackPlugin({
+            patterns: [{ from: "static" }],
+        }),
+    ],
 };
