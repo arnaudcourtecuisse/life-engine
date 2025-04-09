@@ -21,8 +21,6 @@ class ControlPanel {
         this.env_controller.setControlPanel(this);
         this.editor_controller.setControlPanel(this);
         this.stats_panel = new StatsPanel(this.engine.env);
-        this.headless_opacity = 1;
-        this.opacity_change_rate = -0.8;
         this.paused = false;
         this.loadHyperParams();
         LoadController.control_panel = this;
@@ -478,23 +476,6 @@ class ControlPanel {
         this.fps = this.engine.fps;
     }
 
-    updateHeadlessIcon(delta_time) {
-        if (!this.engine.running) return;
-        const min_opacity = 0.4;
-        let op =
-            this.headless_opacity +
-            (this.opacity_change_rate * delta_time) / 1000;
-        if (op <= min_opacity) {
-            op = min_opacity;
-            this.opacity_change_rate = -this.opacity_change_rate;
-        } else if (op >= 1) {
-            op = 1;
-            this.opacity_change_rate = -this.opacity_change_rate;
-        }
-        this.headless_opacity = op;
-        $("#headless-notification").css("opacity", op * 100 + "%");
-    }
-
     update(delta_time) {
         $("#fps-actual").text(
             "Actual FPS: " + Math.floor(this.engine.actual_fps)
@@ -503,7 +484,6 @@ class ControlPanel {
             "Auto reset count: " + this.engine.env.reset_count
         );
         this.stats_panel.updateDetails();
-        if (WorldConfig.headless) this.updateHeadlessIcon(delta_time);
     }
 }
 
