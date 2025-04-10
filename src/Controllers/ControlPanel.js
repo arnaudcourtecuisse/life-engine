@@ -5,6 +5,9 @@ const WorldConfig = require("../WorldConfig");
 const LoadController = require("./LoadController");
 
 class ControlPanel {
+    maxFps = 300;
+    startFps = 60;
+
     constructor(engine) {
         this.engine = engine;
         this.defineMinMaxControls();
@@ -14,32 +17,32 @@ class ControlPanel {
         this.defineHyperParamsControls();
         this.defineWorldControls();
         this.defineModeControls();
-        this.fps = engine.fps;
-        this.organism_record = 0;
+        this.fps = engine.targetFps;
         this.env_controller = this.engine.env.controller;
-        this.editor_controller = this.engine.organism_editor.controller;
+        this.editor_controller = this.engine.organismEditor.controller;
         this.env_controller.setControlPanel(this);
         this.editor_controller.setControlPanel(this);
         this.stats_panel = new StatsPanel(this.engine.env);
-        this.paused = false;
         this.loadHyperParams();
         LoadController.control_panel = this;
     }
 
+    isHUDDisplayed = true;
+    isControlPanelDisplayed = false;
+    activeController = null;
+
     defineMinMaxControls() {
-        this.control_panel_active = false;
-        this.no_hud = false;
         $("#minimize").on("click", () => {
             $(".control-panel").css("display", "none");
             $(".hot-controls").css("display", "block");
-            this.control_panel_active = false;
+            this.isControlPanelDisplayed = false;
             this.stats_panel.stopAutoRender();
         });
         $("#maximize").on("click", () => {
             $(".control-panel").css("display", "grid");
             $(".hot-controls").css("display", "none");
-            this.control_panel_active = true;
-            if (this.tab_id == "stats") {
+            this.isControlPanelDisplayed = true;
+            if (this.activeController === "stats") {
                 this.stats_panel.startAutoRender();
             }
         });
@@ -59,112 +62,142 @@ class ControlPanel {
         c: "#drop-org",
     };
 
+    actionHotkeys = {
+        [" "]: (e) => this.togglePause(e),
+        ["j"]: (e) => this.togglePause(e),
+        ["q"]: (e) => this.togglePanel(e),
+        ["v"]: (e) => this.toggleHud(e),
+    };
+
+    isTyping() {
+        const focused = document.activeElement;
+        return focused.tagName === "INPUT" && focused.type === "text";
+    }
+
+    togglePanel(event) {
+        event.preventDefault();
+        $(this.isControlPanelDisplayed ? "#minimize" : "#maximize").trigger(
+            "click"
+        );
+    }
+
+    toggleHud() {
+        if (this.isHUDDisplayed) {
+            this.restoreHUD();
+        } else {
+            $(".control-panel").css("display", "none");
+            $(".hot-controls").css("display", "none");
+            $(".community-section").css("display", "none");
+            LoadController.close();
+        }
+    }
+
+    restoreHUD() {
+        if (this.isControlPanelDisplayed) {
+            $(".control-panel").css("display", "grid");
+            if (this.activeController === "stats")
+                this.stats_panel.startAutoRender();
+        } else {
+            $(".hot-controls").css("display", "block");
+        }
+        $(".community-section").css("display", "block");
+    }
+
     defineHotkeys() {
         $("body").on("keydown", (e) => {
             // No hotkeys when typing in inputs
-            const focused = document.activeElement;
-            if (focused.tagName === "INPUT" && focused.type === "text") return;
+            if (this.isTyping()) return;
+
             const key = e.key.toLowerCase();
 
             // Basic clicks
             if (key in this.buttonHotkeys) {
-                $(this.buttonHotkeys[key]).trigger("click");
+                return $(this.buttonHotkeys[key]).trigger("click");
             }
 
-            // Advanced behaviors
-            switch (key) {
-                case "j":
-                case " ":
-                    e.preventDefault();
-                    $("#pause-button").trigger("click");
-                    break;
-                // miscellaneous hotkeys
-                case "q": // minimize/maximize control panel
-                    e.preventDefault();
-                    if (this.control_panel_active)
-                        $("#minimize").trigger("click");
-                    else $("#maximize").trigger("click");
-                    break;
-                case "v": // toggle hud
-                    if (this.no_hud) {
-                        const control_panel_display = this.control_panel_active
-                            ? "grid"
-                            : "none";
-                        const hot_control_display = !this.control_panel_active
-                            ? "block"
-                            : "none";
-                        if (
-                            this.control_panel_active &&
-                            this.tab_id == "stats"
-                        ) {
-                            this.stats_panel.startAutoRender();
-                        }
-                        $(".control-panel").css(
-                            "display",
-                            control_panel_display
-                        );
-                        $(".hot-controls").css("display", hot_control_display);
-                        $(".community-section").css("display", "block");
-                    } else {
-                        $(".control-panel").css("display", "none");
-                        $(".hot-controls").css("display", "none");
-                        $(".community-section").css("display", "none");
-                        LoadController.close();
-                    }
-                    this.no_hud = !this.no_hud;
-                    break;
+            if (key in this.actionHotkeys) {
+                return this.actionHotkeys[key](e);
             }
         });
     }
 
     defineEngineSpeedControls() {
-        this.slider = document.getElementById("slider");
-        this.slider.oninput = () => {
-            const max_fps = 300;
-            this.fps = this.slider.value;
-            if (this.fps >= max_fps) this.fps = 1000;
-            if (this.engine.running) {
-                this.changeEngineSpeed(this.fps);
-            }
-            const text = this.fps >= max_fps ? "MAX" : this.fps;
-            $("#fps").text("Target FPS: " + text);
-        };
+        const slider = $("#fps-slider");
+        $(() => {
+            slider.attr("max", this.maxFps);
+            slider.val(this.startFps);
+        });
+        slider.on("input", () => {
+            this.setSpeed(Number(slider.val()));
+        });
 
         $(".pause-button").on("click", () =>
             this.setPaused(this.engine.running)
         );
 
         $(".headless").on("click", () => {
-            $(".headless").find("i").toggleClass("fa fa-eye");
-            $(".headless").find("i").toggleClass("fa fa-eye-slash");
-            if (WorldConfig.headless) {
-                $("#headless-notification").css("display", "none");
-                this.engine.env.renderFull();
-            } else {
-                $("#headless-notification").css("display", "block");
-            }
             WorldConfig.headless = !WorldConfig.headless;
+
+            if (!WorldConfig.headless) {
+                this.engine.env.renderFull();
+            }
+
+            $("#headless-notification").css(
+                "display",
+                WorldConfig.headless ? "block" : "none"
+            );
+            const headlessIcon = $(".headless").find("i");
+            headlessIcon.toggleClass("fa-eye");
+            headlessIcon.toggleClass("fa-eye-slash");
         });
     }
 
+    setSpeed(targetFps) {
+        this.changeEngineSpeed(targetFps);
+        $("#fps-label").text(`Target FPS: ${this.fps}`);
+        $("#fps-slider").val(this.fps);
+    }
+
+    togglePause(event) {
+        event.preventDefault();
+        $("#pause-button").trigger("click");
+    }
+
+    setPaused(paused) {
+        const pauseButtonIcon = $(".pause-button").find("i");
+        pauseButtonIcon.toggleClass("fa-pause");
+        pauseButtonIcon.toggleClass("fa-play");
+        if (paused) {
+            this.engine.stop();
+        } else {
+            this.engine.start(this.fps);
+        }
+    }
+
     defineTabNavigation() {
-        this.tab_id = "about";
+        $(() => this.switchTab("about"));
         const self = this;
-        $(".tabnav-item").on("click", function switchTab() {
-            $(".tab").css("display", "none");
-            const tab = "#" + this.id + ".tab";
-            $(tab).css("display", "grid");
-            $(".tabnav-item").removeClass("open-tab");
-            $("#" + this.id + ".tabnav-item").addClass("open-tab");
-            self.engine.organism_editor.is_active = this.id == "editor";
-            self.stats_panel.stopAutoRender();
-            if (this.id === "stats") {
-                self.stats_panel.startAutoRender();
-            } else if (this.id === "editor") {
-                self.editor_controller.refreshDetailsPanel();
-            }
-            self.tab_id = this.id;
+        $(".tabnav-item").on("click", function () {
+            self.switchTab(this.id.replace("tabnav-item-", ""));
         });
+    }
+
+    switchTab(controllerName) {
+        this.activeController = controllerName;
+
+        $(".tab").css("display", "none");
+        $(".tabnav-item").removeClass("open-tab");
+
+        $(`#tab-${controllerName}`).css("display", "grid");
+        $(`#tabnav-item-${controllerName}`).addClass("open-tab");
+
+        this.stats_panel.stopAutoRender();
+        if (controllerName === "stats") {
+            this.stats_panel.startAutoRender();
+        } else if (controllerName === "editor") {
+            this.editor_controller.refreshDetailsPanel();
+            this.engine.organismEditor.is_active = true;
+        }
     }
 
     defineWorldControls() {
@@ -229,7 +262,6 @@ class ControlPanel {
     bindParameter(param, selector, key, extract = (elt) => elt.value) {
         $(selector).on("change", function () {
             param[key] = extract(this);
-            console.log(key, Hyperparams[key]);
         });
     }
 
@@ -360,14 +392,16 @@ class ControlPanel {
     }
 
     loadEnv(env) {
-        if (this.tab_id == "stats") this.stats_panel.stopAutoRender();
+        if (this.activeController === "stats")
+            this.stats_panel.stopAutoRender();
         const was_running = this.engine.running;
         this.setPaused(true);
         this.engine.env.loadRaw(env);
         if (was_running) this.setPaused(false);
         this.loadHyperParams();
         this.env_controller.resetView();
-        if (this.tab_id == "stats") this.stats_panel.startAutoRender();
+        if (this.activeController === "stats")
+            this.stats_panel.startAutoRender();
     }
 
     defineModeControls() {
@@ -396,19 +430,17 @@ class ControlPanel {
             this.engine.env.clearWalls();
         });
         $("#clear-editor").on("click", () => {
-            this.engine.organism_editor.clear();
+            this.engine.organismEditor.clear();
             this.editor_controller.setEditorPanel();
         });
         $("#generate-random").on("click", () => {
-            this.engine.organism_editor.createRandom();
+            this.engine.organismEditor.createRandom();
             this.editor_controller.refreshDetailsPanel();
         });
         $(".reset-random").on(
             "click",
             function () {
-                this.engine.organism_editor.resetWithRandomOrgs(
-                    this.engine.env
-                );
+                this.engine.organismEditor.resetWithRandomOrgs(this.engine.env);
             }.bind(this)
         );
 
@@ -417,71 +449,54 @@ class ControlPanel {
                 console.log("[dev] no page close confirmation");
                 return;
             }
-            e = e ?? window.event;
 
-            const return_str = "this will cause a confirmation on page close";
-            if (e) {
-                e.returnValue = return_str;
-            }
-            return return_str;
+            return "";
         };
     }
 
     bindModeButton(className, mode) {
         const selector = `.edit-mode-button, .${className}`;
         $(selector).on("click", () => {
+            $(".edit-mode-btn").removeClass("selected");
             $("#cell-selections").css("display", "none");
             $("#organism-options").css("display", "none");
+
+            $(selector).addClass("selected");
             this.editor_controller.setDetailsPanel();
             this.setMode(mode);
-            $(".edit-mode-btn").removeClass("selected");
-            $(selector).addClass("selected");
         });
-    }
-
-    setPaused(paused) {
-        if (paused) {
-            $(".pause-button").find("i").removeClass("fa-pause");
-            $(".pause-button").find("i").addClass("fa-play");
-            if (this.engine.running) this.engine.stop();
-        } else if (!paused) {
-            $(".pause-button").find("i").addClass("fa-pause");
-            $(".pause-button").find("i").removeClass("fa-play");
-            if (!this.engine.running) this.engine.start(this.fps);
-        }
     }
 
     setMode(mode) {
         this.env_controller.mode = mode;
         this.editor_controller.mode = mode;
 
-        if (mode == Modes.Edit) {
+        if (mode === Modes.Edit) {
             this.editor_controller.setEditorPanel();
-        }
-
-        if (mode == Modes.Clone) {
+        } else if (mode === Modes.Clone) {
             this.env_controller.org_to_clone =
-                this.engine.organism_editor.getCopyOfOrg();
+                this.engine.organismEditor.getCopyOfOrg();
         }
     }
 
     setEditorOrganism(org) {
-        this.engine.organism_editor.setOrganismToCopyOf(org);
+        this.engine.organismEditor.setOrganismToCopyOf(org);
         this.editor_controller.clearDetailsPanel();
         this.editor_controller.setDetailsPanel();
     }
 
-    changeEngineSpeed(change_val) {
-        this.engine.restart(change_val);
+    changeEngineSpeed(targetFps) {
+        if (!this.engine.running) return;
+        this.engine.restart(targetFps);
         this.fps = this.engine.fps;
     }
 
-    update(delta_time) {
+    onTick() {
         $("#fps-actual").text(
-            "Actual FPS: " + Math.floor(this.engine.actual_fps)
+            `Actual FPS: ${Math.floor(this.engine.actualFps)}`
         );
         $("#reset-count").text(
-            "Auto reset count: " + this.engine.env.reset_count
+            `Auto reset count: ${this.engine.env.reset_count}`
         );
         this.stats_panel.updateDetails();
     }

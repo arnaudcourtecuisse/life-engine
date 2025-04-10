@@ -35,6 +35,10 @@ class BodyCell {
         return this.org.r + this.rotatedRow(this.org.rotation);
     }
 
+    getPosition() {
+        return [this.getRealCol(), this.getRealRow()];
+    }
+
     getRealCell() {
         const real_c = this.getRealCol();
         const real_r = this.getRealRow();

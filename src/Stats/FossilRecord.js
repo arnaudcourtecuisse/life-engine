@@ -32,12 +32,13 @@ const FossilRecord = {
 
         const name = Object.keys(cell_grid)
             .sort()
-            .map((xy) => `${cellNaming.get(cell_grid[xy].state)}[${xy}]`)
-            .join("");
+            .map((xy) => `${xy}:${cellNaming.get(cell_grid[xy].state)}`)
+            .join("|");
 
         if (name in this.extinct_species) {
             this.resurrect(this.extinct_species[name], organism, start_tick);
         }
+
         if (name in this.extant_species) {
             const species = this.extant_species[name];
             organism.species = species;

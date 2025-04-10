@@ -2,7 +2,7 @@ import Engine from "./Engine";
 
 $(function () {
     checkWidth();
-    new Engine().start(60);
+    new Engine().start();
 });
 
 $(window).on("resize", checkWidth);

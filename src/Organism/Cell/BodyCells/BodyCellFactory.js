@@ -7,15 +7,13 @@ const EyeCell = require("./EyeCell");
 const CellStates = require("../CellStates");
 
 const BodyCellFactory = {
-    init: function () {
-        const type_map = {};
-        type_map[CellStates.mouth.name] = MouthCell;
-        type_map[CellStates.producer.name] = ProducerCell;
-        type_map[CellStates.mover.name] = MoverCell;
-        type_map[CellStates.killer.name] = KillerCell;
-        type_map[CellStates.armor.name] = ArmorCell;
-        type_map[CellStates.eye.name] = EyeCell;
-        this.type_map = type_map;
+    type_map: {
+        [CellStates.mouth.name]: MouthCell,
+        [CellStates.producer.name]: ProducerCell,
+        [CellStates.mover.name]: MoverCell,
+        [CellStates.killer.name]: KillerCell,
+        [CellStates.armor.name]: ArmorCell,
+        [CellStates.eye.name]: EyeCell,
     },
 
     createInherited: function (org, to_copy) {
@@ -40,6 +38,5 @@ const BodyCellFactory = {
         return cell;
     },
 };
-BodyCellFactory.init();
 
 module.exports = BodyCellFactory;

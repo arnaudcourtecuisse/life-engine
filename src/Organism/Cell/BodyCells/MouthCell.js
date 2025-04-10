@@ -11,8 +11,8 @@ class MouthCell extends BodyCell {
         const env = this.org.env;
         const real_c = this.getRealCol();
         const real_r = this.getRealRow();
-        for (const loc of Hyperparams.edibleNeighbors) {
-            const cell = env.grid_map.cellAt(real_c + loc[0], real_r + loc[1]);
+        for (const [c, r] of Hyperparams.edibleNeighbors) {
+            const cell = env.grid_map.cellAt(real_c + c, real_r + r);
             this.eatNeighbor(cell, env);
         }
     }
