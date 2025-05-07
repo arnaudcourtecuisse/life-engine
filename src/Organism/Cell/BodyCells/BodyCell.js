@@ -7,14 +7,6 @@ class BodyCell {
         this.org = org;
         this.loc_col = loc_col;
         this.loc_row = loc_row;
-
-        const distance = Math.max(
-            Math.abs(loc_row) * 2 + 2,
-            Math.abs(loc_col) * 2 + 2
-        );
-        if (this.org.anatomy.birth_distance < distance) {
-            this.org.anatomy.birth_distance = distance;
-        }
     }
 
     initInherit(parent) {
@@ -41,6 +33,10 @@ class BodyCell {
 
     getRealRow() {
         return this.org.r + this.rotatedRow(this.org.rotation);
+    }
+
+    getPosition() {
+        return [this.getRealCol(), this.getRealRow()];
     }
 
     getRealCell() {

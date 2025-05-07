@@ -1,2 +1,8 @@
+# Dependencies
 node_modules/
-dist/js/
+
+# TypeScript build files when not compiling with webpack
+.tsbuild
+
+# Output directory
+dist/

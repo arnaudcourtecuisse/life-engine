@@ -5,7 +5,9 @@ const SerializeHelper = require("../Utils/SerializeHelper");
 class Anatomy {
     constructor(owner) {
         this.owner = owner;
-        this.birth_distance = 4;
+        this.birth_distance = 2;
+        this.move_cost = 0;
+        this.rotation_cost = 0;
         this.clear();
     }
 
@@ -18,19 +20,23 @@ class Anatomy {
     }
 
     canAddCellAt(c, r) {
-        for (const cell of this.cells) {
-            if (cell.loc_col == c && cell.loc_row == r) {
-                return false;
-            }
-        }
-        return true;
+        return !([c, r] in this.grid);
     }
 
+    #addCell(cell, c, r) {
+        this.move_cost += 1;
+        this.rotation_cost += c * c + r * r;
+        const distance = 2 * (1 + Math.max(Math.abs(c), Math.abs(r)));
+        if (distance > this.birth_distance) {
+            this.birth_distance = distance;
+        }
+        this.cells.push(cell);
+        this.grid[[c, r]] = cell;
+        return cell;
+    }
     addDefaultCell(state, c, r) {
         const new_cell = BodyCellFactory.createDefault(this.owner, state, c, r);
-        this.cells.push(new_cell);
-        this.grid[[c, r]] = new_cell;
-        return new_cell;
+        return this.#addCell(new_cell, c, r);
     }
 
     addRandomizedCell(state, c, r) {
@@ -38,9 +44,7 @@ class Anatomy {
             this.owner.brain.randomizeDecisions();
         }
         const new_cell = BodyCellFactory.createRandom(this.owner, state, c, r);
-        this.cells.push(new_cell);
-        this.grid[[c, r]] = new_cell;
-        return new_cell;
+        return this.#addCell(new_cell, c, r);
     }
 
     addInheritCell(parent_cell) {
@@ -48,9 +52,11 @@ class Anatomy {
             this.owner,
             parent_cell
         );
-        this.cells.push(new_cell);
-        this.grid[[parent_cell.loc_col, parent_cell.loc_row]] = new_cell;
-        return new_cell;
+        return this.#addCell(
+            new_cell,
+            parent_cell.loc_col,
+            parent_cell.loc_row
+        );
     }
 
     replaceCell(state, c, r, randomize = true) {
@@ -67,6 +73,8 @@ class Anatomy {
         for (let i = 0; i < this.cells.length; i++) {
             const cell = this.cells[i];
             if (cell.loc_col == c && cell.loc_row == r) {
+                this.move_cost -= 1;
+                this.rotation_cost -= c * c + r * r;
                 this.cells.splice(i, 1);
                 delete this.grid[[c, r]];
                 break;

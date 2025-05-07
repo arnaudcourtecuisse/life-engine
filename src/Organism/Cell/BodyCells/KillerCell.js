@@ -9,28 +9,28 @@ class KillerCell extends BodyCell {
 
     performFunction() {
         const env = this.org.env;
-        const c = this.getRealCol();
-        const r = this.getRealRow();
-        for (const loc of Hyperparams.killableNeighbors) {
-            const cell = env.grid_map.cellAt(c + loc[0], r + loc[1]);
-            this.killNeighbor(cell);
+        const [kc, kr] = this.getPosition();
+        for (const [tc, tr] of Hyperparams.killableNeighbors) {
+            const cell = env.grid_map.cellAt(kc + tc, kr + tr);
+            this.harmOrganism(cell);
         }
     }
 
-    killNeighbor(n_cell) {
+    harmOrganism(targetCell) {
+        const target = targetCell?.owner;
         if (
-            n_cell == null ||
-            n_cell.owner == null ||
-            n_cell.owner == this.org ||
-            !n_cell.owner.living ||
-            n_cell.state == CellStates.armor
-        )
+            !target ||
+            target === this.org ||
+            !target.living ||
+            targetCell.state === CellStates.armor
+        ) {
             return;
-        const is_hit = n_cell.state == CellStates.killer; // has to be calculated before death
-        n_cell.owner.harm();
-        if (Hyperparams.instaKill && is_hit) {
+        }
+        if (Hyperparams.instaKill && targetCell.state === CellStates.killer) {
+            // Since insta-kill kills, we need to reciprocate now
             this.org.harm();
         }
+        target.harm();
     }
 }
 

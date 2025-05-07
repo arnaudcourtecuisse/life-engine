@@ -4,10 +4,7 @@ const ChartController = require("./ChartController");
 
 class CellsChart extends ChartController {
     constructor() {
-        super(
-            "Organism Size / Composition",
-            "Avg. Number of Cells per Organism"
-        );
+        super("Organism Size & composition");
     }
 
     setData() {

@@ -73,7 +73,7 @@ class OrganismEditor extends Environment {
     }
 
     setOrganismToCopyOf(orig_org) {
-        this.grid_map.fillGrid(CellStates.empty);
+        this.grid_map.resetGrid();
         const center = this.grid_map.getCenter();
         this.organism = new Organism(center[0], center[1], this, orig_org);
         this.organism.updateGrid();
@@ -86,7 +86,7 @@ class OrganismEditor extends Environment {
     }
 
     clear() {
-        this.grid_map.fillGrid(CellStates.empty);
+        this.grid_map.resetGrid();
         const center = this.grid_map.getCenter();
         this.organism = new Organism(center[0], center[1], this, null);
         this.organism.anatomy.addDefaultCell(CellStates.mouth, 0, 0);
@@ -94,7 +94,7 @@ class OrganismEditor extends Environment {
     }
 
     createRandom() {
-        this.grid_map.fillGrid(CellStates.empty);
+        this.grid_map.resetGrid();
 
         this.organism = RandomOrganismGenerator.generate(this);
         this.organism.updateGrid();

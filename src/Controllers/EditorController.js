@@ -17,7 +17,7 @@ class EditorController extends CanvasController {
     }
 
     mouseMove() {
-        if (this.right_click || this.left_click) this.editOrganism();
+        if (["left", "right"].includes(this.active_button)) this.editOrganism();
     }
 
     mouseDown() {
@@ -34,27 +34,35 @@ class EditorController extends CanvasController {
     }
 
     editOrganism() {
-        if (this.edit_cell_type == null || this.mode != Modes.Edit) return;
-        if (this.left_click) {
-            if (
-                this.edit_cell_type == CellStates.eye &&
-                this.cur_cell.state == CellStates.eye
-            ) {
-                const loc_cell = this.getCurLocalCell();
-                loc_cell.direction = Directions.rotateRight(loc_cell.direction);
-                this.env.renderFull();
-            } else
-                this.env.addCellToOrg(
-                    this.mouse_c,
-                    this.mouse_r,
-                    this.edit_cell_type
-                );
-        } else if (this.right_click)
+        if (this.edit_cell_type == null || this.mode !== Modes.Edit) return;
+
+        if (this.active_button === "left") {
+            this.updateCell();
+        } else if (this.active_button === "right") {
             this.env.removeCellFromOrg(this.mouse_c, this.mouse_r);
+        }
 
         this.setBrainPanelVisibility();
         this.setMoveRangeVisibility();
         this.updateDetails();
+    }
+
+    updateCell() {
+        const shouldRotate =
+            this.edit_cell_type === CellStates.eye &&
+            this.cur_cell.state === CellStates.eye;
+
+        if (shouldRotate) {
+            const loc_cell = this.getCurLocalCell();
+            loc_cell.direction = Directions.rotateRight(loc_cell.direction);
+            return this.env.renderFull();
+        }
+
+        return this.env.addCellToOrg(
+            this.mouse_c,
+            this.mouse_r,
+            this.edit_cell_type
+        );
     }
 
     updateDetails() {
@@ -63,29 +71,24 @@ class EditorController extends CanvasController {
         );
     }
 
+    typesIdMap = {
+        mouth: CellStates.mouth,
+        producer: CellStates.producer,
+        mover: CellStates.mover,
+        killer: CellStates.killer,
+        armor: CellStates.armor,
+        eye: CellStates.eye,
+    };
+
     defineCellTypeSelection() {
         const self = this;
-        $(".cell-type").click(function () {
-            switch (this.id) {
-                case "mouth":
-                    self.edit_cell_type = CellStates.mouth;
-                    break;
-                case "producer":
-                    self.edit_cell_type = CellStates.producer;
-                    break;
-                case "mover":
-                    self.edit_cell_type = CellStates.mover;
-                    break;
-                case "killer":
-                    self.edit_cell_type = CellStates.killer;
-                    break;
-                case "armor":
-                    self.edit_cell_type = CellStates.armor;
-                    break;
-                case "eye":
-                    self.edit_cell_type = CellStates.eye;
-                    break;
+        $(".cell-type").on("click", function () {
+            const updatedState = self.typesIdMap[this.id];
+            if (updatedState) {
+                self.edit_cell_type = updatedState;
             }
+
+            // Highlight only selected cell type
             $(".cell-type").css("border-color", "black");
             const selected = "#" + this.id + ".cell-type";
             $(selected).css("border-color", "yellow");
@@ -93,44 +96,35 @@ class EditorController extends CanvasController {
     }
 
     defineEditorDetails() {
-        this.details_html = $("#organism-details");
-        this.edit_details_html = $("#edit-organism-details");
+        $("#move-decision-interval-edit").on("change", () => {
+            this.env.organism.move_decision_interval = parseInt(
+                $("#move-decision-interval-edit").val()
+            );
+        });
 
-        this.decision_names = ["ignore", "move away", "move towards"];
+        $("#mutation-rate-edit").on("change", () => {
+            this.env.organism.mutability = parseInt(
+                $("#mutation-rate-edit").val()
+            );
+        });
 
-        $("#move-range-edit").change(
-            function () {
-                this.env.organism.move_range = parseInt(
-                    $("#move-range-edit").val()
-                );
-            }.bind(this)
-        );
-
-        $("#mutation-rate-edit").change(
-            function () {
-                this.env.organism.mutability = parseInt(
-                    $("#mutation-rate-edit").val()
-                );
-            }.bind(this)
-        );
-        $("#observation-type-edit").change(
-            function () {
-                this.setBrainEditorValues($("#observation-type-edit").val());
-                this.setBrainDetails();
-            }.bind(this)
-        );
-        $("#reaction-edit").change(
-            function () {
-                const obs = $("#observation-type-edit").val();
-                const decision = parseInt($("#reaction-edit").val());
-                this.env.organism.brain.decisions[obs] = decision;
-                this.setBrainDetails();
-            }.bind(this)
-        );
+        $("#observation-type-edit").on("change", () => {
+            // Load the reaction value for the selected observation type
+            this.updatedBrainReactionForm();
+        });
+        $("#reaction-edit").on("change", () => {
+            // Save the reaction value for the selected observation type
+            const obs = $("#observation-type-edit").val();
+            this.env.organism.brain.decisions[obs] = parseInt(
+                $("#reaction-edit").val(),
+                10
+            );
+            this.updateBrainBehavior();
+        });
     }
 
     defineSaveLoad() {
-        $("#save-org").click(() => {
+        $("#save-org").on("click", () => {
             const org = this.env.organism.serialize();
             const data =
                 "data:text/json;charset=utf-8," +
@@ -140,7 +134,7 @@ class EditorController extends CanvasController {
             downloadEl.setAttribute("download", "organism.json");
             downloadEl.click();
         });
-        $("#load-org").click(() => {
+        $("#load-org").on("click", () => {
             LoadController.loadJson((org) => {
                 this.loadOrg(org);
             });
@@ -153,7 +147,7 @@ class EditorController extends CanvasController {
         this.refreshDetailsPanel();
         this.env.organism.updateGrid();
         this.env.renderFull();
-        if (this.mode === Modes.Clone) $("#drop-org").click();
+        if (this.mode === Modes.Clone) $("#drop-org").trigger("click");
     }
 
     clearDetailsPanel() {
@@ -172,19 +166,21 @@ class EditorController extends CanvasController {
         const org = this.env.organism;
 
         $(".cell-count").text("Cell count: " + org.anatomy.cells.length);
-        $("#move-range").text("Move Range: " + org.move_range);
+        $("#move-decision-interval").text(
+            "Move Range: " + org.move_decision_interval
+        );
         $("#mutation-rate").text("Mutation Rate: " + org.mutability);
 
-        if (Hyperparams.useGlobalMutability) {
-            $("#mutation-rate").css("display", "none");
-        } else {
+        if (Hyperparams.useEvolutiveMutability) {
             $("#mutation-rate").css("display", "block");
+        } else {
+            $("#mutation-rate").css("display", "none");
         }
 
         this.setMoveRangeVisibility();
 
         if (this.setBrainPanelVisibility()) {
-            this.setBrainDetails();
+            this.updateBrainBehavior();
         }
         $("#organism-details").css("display", "block");
     }
@@ -195,42 +191,48 @@ class EditorController extends CanvasController {
 
         $(".cell-count").text("Cell count: " + org.anatomy.cells.length);
         if (this.setMoveRangeVisibility()) {
-            $("#move-range-edit").val(org.move_range);
+            $("#move-decision-interval-edit").val(org.move_decision_interval);
         }
 
         $("#mutation-rate-edit").val(org.mutability);
-        if (Hyperparams.useGlobalMutability) {
-            $("#mutation-rate-cont").css("display", "none");
-        } else {
-            $("#mutation-rate-cont").css("display", "block");
-        }
+        $("#mutation-rate-cont").css(
+            "display",
+            Hyperparams.useEvolutiveMutability ? "block" : "none"
+        );
 
         if (this.setBrainPanelVisibility()) {
-            this.setBrainEditorValues($("#observation-type-edit").val());
+            this.updatedBrainReactionForm();
+            this.updateBrainBehavior();
         }
 
         $("#cell-selections").css("display", "grid");
         $("#edit-organism-details").css("display", "block");
     }
 
-    setBrainPanelVisibility() {
+    setMoveRangeVisibility() {
         const org = this.env.organism;
-        if (org.anatomy.has_eyes && org.anatomy.is_mover) {
-            $(".brain-details").css("display", "block");
-            return true;
-        }
-        $(".brain-details").css("display", "none");
-        return false;
+        const display = org.anatomy.is_mover ? "block" : "none";
+        $("#move-decision-interval-cont").css("display", display);
+        $("#move-decision-interval").css("display", display);
+        return org.anatomy.is_mover;
     }
 
-    setBrainDetails() {
+    setBrainPanelVisibility() {
+        const org = this.env.organism;
+        const has_brain = org.anatomy.has_eyes && org.anatomy.is_mover;
+        const display = has_brain ? "block" : "none";
+        $(".brain-details").css("display", display);
+        return has_brain;
+    }
+
+    updateBrainBehavior() {
         const chase_types = [];
         const retreat_types = [];
         for (const cell_name in this.env.organism.brain.decisions) {
             const decision = this.env.organism.brain.decisions[cell_name];
-            if (decision == 1) {
+            if (decision === 1) {
                 retreat_types.push(cell_name);
-            } else if (decision == 2) {
+            } else if (decision === 2) {
                 chase_types.push(cell_name);
             }
         }
@@ -238,27 +240,10 @@ class EditorController extends CanvasController {
         $(".retreat-types").text("Move Away From: " + retreat_types);
     }
 
-    setMoveRangeVisibility() {
-        const org = this.env.organism;
-        if (org.anatomy.is_mover) {
-            $("#move-range-cont").css("display", "block");
-            $("#move-range").css("display", "block");
-            return true;
-        }
-        $("#move-range-cont").css("display", "none");
-        $("#move-range").css("display", "none");
-        return false;
-    }
-
-    setBrainEditorValues(name) {
-        $("#observation-type-edit").val(name);
+    updatedBrainReactionForm() {
+        const name = $("#observation-type-edit").val();
         const reaction = this.env.organism.brain.decisions[name];
         $("#reaction-edit").val(reaction);
-    }
-
-    setRandomizePanel() {
-        this.clearDetailsPanel();
-        $("#randomize-organism-details").css("display", "block");
     }
 }
 
